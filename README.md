@@ -1,4 +1,5 @@
 ## 📊 Happycharts: Generative Dashboards for Normies
+![Happycharts](./public/normies.png)
 
 Welcome to Happycharts, a powerful yet user-friendly platform designed to help users create generative BI dashboards with ease. Happycharts leverages cutting-edge technologies to provide seamless integration with your data sources and powerful generative AI capabilities. This README will dive into the architecture, key components, and routes of Happycharts.
 
