@@ -12,6 +12,7 @@ import { ClickHouseClient, createClient as createClickHouseClient } from '@click
 import CryptoJS from 'crypto-js';
 import { createOpenAI } from '@ai-sdk/openai';
 import { text } from 'stream/consumers';
+import { v4 as uuidv4, validate as uuidValidate, validate } from 'uuid';
 
 export type Message = {
   role: 'user' | 'assistant';
@@ -21,11 +22,9 @@ export type Message = {
 
 type ConnectToDatabaseResult = {
   type: 'tool-result';
-  toolCallId: string;
+  toolCallId: string; 
   toolName: 'connectToDatabase';
   args: {
-    organizationId: string;
-    sourceId: string;
     credentials: string;
   };
   result: ClickHouseClient;
@@ -50,8 +49,9 @@ type CreateQueryResult = {
   toolCallId: string;
   toolName: 'createQuery';
   args: {
-    sourceId: string;
+    schema: string;
     query: string;
+    credentials: { url: string; username: string; password: string; database: string };
   };
   result: {
     columns: string[];
@@ -76,6 +76,20 @@ type ToolResult = ConnectToDatabaseResult | FetchSchemaResult | CreateQueryResul
 
 export async function AIChat(conversation: { role: string; content: string }[], org: { id: string }, input: string, prompt: string): Promise<{ text: string; charts: (string | null)[] }> {
   const supabase = createClient();
+  const organizationId = auth().orgId;
+
+  const { data, error } = await supabase
+  .from('sources')
+  .select('credentials')
+  .eq('id', "organization")
+  .single();
+
+  const sourceId = data?.credentials.sourceId;
+  const credentials = data?.credentials;
+
+  if (error) throw error;
+  if (!data) throw new Error('No source found');
+
 
   const barChartSchema = z.object({
     barChart: z.object({
@@ -97,39 +111,34 @@ export async function AIChat(conversation: { role: string; content: string }[], 
         description: 'Connect to a database for the given organization.',
         parameters: z.object({
           organizationId: z.string().describe('The ID of the organization'),
-          sourceId: z.string().describe('The ID of the data source'),
+          sourceId: z.string().describe('The ID of the source'),
           credentials: z.string().describe('The credentials for the database'),
         }),
-        execute: async ({ credentials, organizationId, sourceId }) => {
-          const supabase = createClient();
-          const org = auth().orgId;
-        
+        execute: async ({ credentials }) => {
+
           try {
-            const { data, error } = await supabase
-              .from('sources')
-              .select('*, credentials(*)') // Assuming credentials is a nested object in the sources table
-              .eq('id', sourceId)
-              .single(); // Use .single() instead of .select() to return a single row
-        
-            if (error) throw error;
-            if (!data) throw new Error('No source found');
-        
-            console.log('Data:', data); // Log the value of data
-        
-            const credentials = data.credentials;
-        
-            const client = createClickHouseClient(credentials);
-        
+            console.log('Source ID:', sourceId); // Log the value of sourceId
+            console.log('Data:', data); // Log the fetched data
+          
+            const client = createClickHouseClient({
+              url: credentials.url,
+              username: credentials.username,
+              password: credentials.password,
+              database: credentials.database,
+            });
+          
             return client;
           } catch (error) {
             console.error(error);
             throw error;
           }
+          
         },
       },
       fetchSchema: {
         description: 'Fetch the schema for the connected database.',
         parameters: z.object({
+          organizationId: z.string().describe('The ID of the organization'),
           sourceId: z.string().describe('The ID of the data source'),
           client: z.any().describe('The ClickHouse client'),
         }),
@@ -174,13 +183,18 @@ export async function AIChat(conversation: { role: string; content: string }[], 
       createQuery: {
         description: 'Create and execute a query on the connected ClickHouse database.',
         parameters: z.object({
-          sourceId: z.string().describe('The ID of the data source'),
+          organizationId: z.string().describe('The ID of the organization'),
           query: z.string().describe('The SQL query to execute'),
+          schema: z.string().describe('The schema for the database'),
+          credentials: z.object({
+            url: z.string(),
+            username: z.string(),
+            password: z.string(),
+            database: z.string(),
+          }).describe('The credentials for the database'),
         }),
 
-        execute: async ({ query, credentials }: { query: string, credentials: { url: string, username: string, password: string, database: string } }) => {
-          const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY!;
-
+        execute: async ({ query, credentials, schema }: { query: string, credentials: { url: string, username: string, password: string, database: string }, schema: string }) => {
           const client = createClickHouseClient({
             url: credentials.url,
             username: credentials.username,
@@ -229,7 +243,7 @@ export async function AIChat(conversation: { role: string; content: string }[], 
     }, // Close the tools object
   }); // Close the generateText function call
 
-  const charts = toolResults.map((result: ToolResult, index: number) => {
+  const charts = toolResults.map((result: ToolResult, index: number): string | null => {
     switch (result.toolName) {
       case 'createQuery':
         if (result.result.columns && result.result.rows) {

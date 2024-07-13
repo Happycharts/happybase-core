@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@/app/utils/supabase/server'
 import CryptoJS from 'crypto-js'
+import ksuid from 'ksuid'
 
 export async function POST(req: Request) {
   const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY!
@@ -18,11 +19,25 @@ export async function POST(req: Request) {
     }
 
     const supabase = createClient()
+    const prefix = 'src';
+    function generateStripeLikeId(prefix: string): string {
+      const id = ksuid.randomSync().string; // Generate a new ksuid string
+      return `${prefix}_${id}`; // Concatenate prefix with generated id
+    }
+    
+    // Example usage:
+    const uniqueId = generateStripeLikeId('stripe');
+    console.log(uniqueId); // Outputs something like "stripe_1NoMO8rMBFhITs2vPN8XkO"
+    
+    // Usage
+    const sourceId = generateStripeLikeId('src');
+    console.log(sourceId); 
 
     // Encrypt only the credentials, not the type
     const { data, error } = await supabase
       .from('sources')
       .insert({
+        id: generateStripeLikeId(prefix),
         organization: orgId,
         type,
         credentials: credentials,
