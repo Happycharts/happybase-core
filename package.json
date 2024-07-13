@@ -14,6 +14,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.29",
     "@ai-sdk/openai": "^0.0.36",
+    "@alenaksu/json-viewer": "^2.0.1",
     "@blocknote/core": "^0.14.5",
     "@blocknote/mantine": "^0.14.6",
     "@blocknote/react": "^0.14.6",
