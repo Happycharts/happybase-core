@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@clickhouse/client';
 import { auth } from '@clerk/nextjs/server';
 import { createClient as createSupabaseClient } from '@/app/utils/supabase/server';
-import CryptoJS from 'crypto-js';
 
 export async function POST(req: NextRequest) {
   const { userId, orgId } = auth();
@@ -30,15 +29,12 @@ export async function POST(req: NextRequest) {
   }
 
   const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY!;
-  const decryptedCredentials = JSON.parse(
-    CryptoJS.AES.decrypt(sourceData.credentials, SUPABASE_SECRET_KEY).toString(CryptoJS.enc.Utf8)
-  );
 
   const client = createClient({
-    url: decryptedCredentials.url,
-    username: decryptedCredentials.username,
-    password: decryptedCredentials.password,
-    database: decryptedCredentials.database,
+    url: sourceData.url,
+    username: sourceData.username,
+    password: sourceData.password,
+    database: sourceData.database,
   });
 
   try {
