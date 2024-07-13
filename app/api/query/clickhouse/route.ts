@@ -44,13 +44,24 @@ export async function POST(req: NextRequest) {
         password: credentials.password,
       });
 
-      const resultSet = await client.query({
+      const resultStream = await client.query({
         query,
+        format: 'JSONEachRow',
       });
 
-      const result = await resultSet.json();
+      const results = [];
+      let rowCount = 0;
+      const MAX_ROWS = 10000; // Adjust this value based on your needs
 
-      return NextResponse.json({ result }, { status: 200 });
+      for await (const row of resultStream.stream()) {
+        results.push(row);
+        rowCount++;
+        if (rowCount >= MAX_ROWS) {
+          break;
+        }
+      }
+
+      return NextResponse.json({ results, rowCount }, { status: 200 });
     } catch (error) {
       console.error('Error executing ClickHouse query:', error);
       return NextResponse.json({ 
