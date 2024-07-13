@@ -60,7 +60,7 @@ export const basicSetup: Extension = (() => [
     ])
   ])()
 
-const code = `-- Query external JSON API and create a new table
+const placeholderQuery = `-- Query external JSON API and create a new table
 CREATE TABLE new_tbl AS SELECT * FROM read_json_auto('https://api.datamuse.com/words?ml=sql');
 SELECT * FROM new_tbl;
 
@@ -82,7 +82,7 @@ export default function SQLEditor() {
   const [queryResult, setQueryResult] = useState(null);
   const [sources, setSources] = useState<Source[]>([]);
   const [selectedSource, setSelectedSource] = useState("");
-  const [query, setQuery] = useState(code);
+  const [query, setQuery] = useState(placeholderQuery);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast()
