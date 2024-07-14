@@ -1,15 +1,15 @@
-## 😜 Happycharts: Generative Dashboards for Normies
-![Happycharts](./public/normies.png)
+## 😜 Happybase: Generative Dashboards for Normies
+![Happybase](./public/normies.png)
 
-Welcome to Happycharts, a powerful yet user-friendly platform designed to help users create generative BI dashboards with ease. Happycharts leverages cutting-edge technologies to provide seamless integration with your data sources and powerful generative AI capabilities. This README will dive into the architecture, key components, and routes of Happycharts.
+Welcome to Happybase, a powerful yet user-friendly platform designed to help users create generative BI dashboards with ease. Happybase leverages cutting-edge technologies to provide seamless integration with your data sources and powerful generative AI capabilities. This README will dive into the architecture, key components, and routes of Happybase.
 
 ### 📐 Architecture
 
-Happycharts is built on a modern tech stack that ensures scalability, security, and ease of use. Here's an overview of the core components:
+Happybase is built on a modern tech stack that ensures scalability, security, and ease of use. Here's an overview of the core components:
 
 #### Shadcn
 
-Shadcn is used to build the UI components of Happycharts. It provides a robust and flexible foundation for creating a responsive and aesthetically pleasing user interface.
+Shadcn is used to build the UI components of Happybase. It provides a robust and flexible foundation for creating a responsive and aesthetically pleasing user interface.
 
 #### Clerk Auth
 
@@ -25,7 +25,7 @@ The App Router is used to manage the application's navigation and routing. It en
 
 ### 🎛️ Dashboard Routes
 
-Happycharts has several key routes for managing data sources and viewing dashboards:
+Happybase has several key routes for managing data sources and viewing dashboards:
 
 #### `/dashboard/add-source`
 
@@ -41,7 +41,7 @@ This route allows users to view and manage their saved components, including cha
 
 ### ⚙️ API Routes
 
-Happycharts provides API routes to manage data sources and handle chat interactions:
+Happybase provides API routes to manage data sources and handle chat interactions:
 
 #### `/api/add-source`
 
@@ -53,7 +53,7 @@ This API route manages chat interactions, leveraging AI to assist users with que
 
 ### 🪄 Vercel AI Functionality
 
-Happycharts uses Vercel AI to provide generative charting capabilities through function calling. Here’s a deeper look into the Vercel AI logic:
+Happybase uses Vercel AI to provide generative charting capabilities through function calling. Here’s a deeper look into the Vercel AI logic:
 
 #### Generative Charts via Function Calling
 
@@ -194,7 +194,7 @@ createQuery: {
 }
 ```
 
-With these tools and functionalities, Happycharts offers a seamless experience for generating and managing BI dashboards. We hope this README helps you understand the architecture and capabilities of Happycharts. Happy charting!
+With these tools and functionalities, Happybase offers a seamless experience for generating and managing BI dashboards. We hope this README helps you understand the architecture and capabilities of Happybase. Happy charting!
 
 ### 🤝 Contributing Guidelines
 

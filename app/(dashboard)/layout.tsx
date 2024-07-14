@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Menu } from "@/components/sidebar/menu"
 import { useSidebarToggle } from "@/app/hooks/use-sidebar-toggle"
 import { SidebarToggle } from "@/components/sidebar/sidebar-toggle"
-import Logo from "@/public/happycharts.svg"
+import Logo from "@/public/Happybase.svg"
 import { ScoutBar } from "scoutbar"
 
 
@@ -55,7 +55,7 @@ export default function RootLayout({
                       : "translate-x-0 opacity-100"
                   )}
                 >
-                Happycharts
+                Happybase
                 </h1>
               </Link>
             </Button>
