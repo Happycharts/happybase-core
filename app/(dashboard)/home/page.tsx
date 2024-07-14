@@ -227,7 +227,7 @@ const handleSourceChange = (value: string) => {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
               <Label className="text-sm text-gray-500">Email</Label>
-              <p className="font-medium">james@tryportcullis.io</p>
+              <p className="font-medium">jdbohrman@outlook.com</p>
             </div>
             <div>
               <Label className="text-sm text-gray-500">Phone</Label>
