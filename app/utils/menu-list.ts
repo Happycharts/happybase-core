@@ -71,13 +71,6 @@ import {
               },
             ]
           },
-          {
-            href: "/saved-components",
-            label: "Saved Components",
-            active: pathname.includes("/saved-components"),
-            icon: Cuboid,
-            submenus: []
-          }
         ]
       },
       {
