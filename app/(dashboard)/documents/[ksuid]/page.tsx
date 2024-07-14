@@ -10,10 +10,51 @@ import { JSONContent } from "novel";
 import { useState, useEffect, useCallback } from "react";
 import { defaultValue } from "./default-value";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem} from "@/components/ui/select";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from 'next/navigation'
 import { useToast } from "@/components/ui/use-toast";
+import { useSetDocumentId } from '@veltdev/react';
+import { useIdentify } from '@veltdev/react'
+import { useAuth, useUser, useOrganization } from "@clerk/nextjs"
+import { User } from "@veltdev/types/types";
 
-export default function Home() {
+
+export default function DocumentPage() {
+  const router = useRouter();
+  const params = useParams<{ ksuid: string; }>()
+  console.log(params)
+
+  const viewer = useUser();
+
+const userService = () => {
+  return {
+    uid:  viewer.user?.id!,
+    displayName: viewer.user?.fullName!,
+    email: viewer.user?.primaryEmailAddress?.emailAddress!,
+    photoURL: viewer.user?.imageUrl!,
+    color: "#fc4c69", // Use valid Hex code value. Used in the background color of the user's avatar.
+    textColor: "#000000", // Use valid Hex code value. Used in the text color of the user's intial when photoUrl is not present.
+  }
+}
+
+const yourAuthenticatedUser = userService()
+
+const { uid, displayName, email, photoURL, color, textColor } = yourAuthenticatedUser;
+
+const user: User = {
+  userId: viewer.user?.id!,
+  name: viewer.user?.fullName!,
+  email: viewer.user?.primaryEmailAddress?.emailAddress!,
+  photoUrl: viewer.user?.imageUrl!,
+  color: "#fc4c69", // Use valid Hex code value. Used in the background color of the user's avatar.
+  textColor: "#000000", // Use valid Hex code value. Used in the text color of the user's intial when photoUrl is not present.
+};
+
+useIdentify(user)
+
+  const ksuid = params.ksuid;
+
+  useSetDocumentId(ksuid);
+
   interface Source {
     id: number;
     name: string;
@@ -27,7 +68,6 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [value, setValue] = useState<JSONContent>(defaultValue);
 
-  const router = useRouter();
   const { toast } = useToast()
 
   console.log(value);

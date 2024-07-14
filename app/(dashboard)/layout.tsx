@@ -13,8 +13,6 @@ import { useSidebarToggle } from "@/app/hooks/use-sidebar-toggle"
 import { SidebarToggle } from "@/components/sidebar/sidebar-toggle"
 import Logo from "@/public/happycharts.svg"
 import { ScoutBar } from "scoutbar"
-import { useIdentify } from '@veltdev/react'
-import { useAuth, useUser, useOrganization } from "@clerk/nextjs"
 
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans", weight: ["400", "700"] })
@@ -25,35 +23,6 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   const sidebar = useStore(useSidebarToggle, (state) => state);
-  const { user } = useUser();
-  const org = useOrganization();
-  const userService = () => {
-    return {
-      uid: user?.id || '',
-      displayName: user?.firstName || '',
-      email: user?.primaryEmailAddress?.emailAddress || '',
-      photoURL: user?.imageUrl || '',
-      color: "#fc4c69",
-      textColor: "#000000",
-      organizationId: org.organization?.id || ''
-    }
-  }
-
-  let clerkUser = userService()
-
-  const { uid, displayName, email, photoURL, organizationId, color, textColor } = clerkUser;
-
-  const velt = {
-    userId: uid,
-    name: displayName,
-    email: email,
-    photoUrl: photoURL,
-    color: color,
-    textColor: textColor,
-    organizationId: organizationId
-  };
-
-  useIdentify(velt)
 
   if(!sidebar) return null;
 

@@ -9,7 +9,7 @@ export const defaultValue = {
       content: [
         {
           type: "text",
-          text: "Collaborative SQL Project",
+          text: "Welcome to Happybase!",
         },
       ],
     },
@@ -18,7 +18,7 @@ export const defaultValue = {
       content: [
         {
           type: "text",
-          text: "Welcome to our collaborative SQL and data warehouse management project. Use this document to share queries, discuss schema changes, and coordinate our data strategy.",
+          text: "This is a realtime collaborative scratchpad for SQL that can run queries and render tables (Soon!). Use this document to share queries, discuss schema changes, and coordinate our data strategy.",
         },
       ],
     },

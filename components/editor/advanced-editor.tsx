@@ -22,17 +22,19 @@ import { uploadFn } from "./image-upload";
 import { Separator } from "../ui/separator";
 import { QueryButton } from "./selectors/run-query";
 
-const extensions = [...defaultExtensions, slashCommand];
-
 interface EditorProp {
   initialValue?: JSONContent;
   onChange: (value: JSONContent) => void;
 }
 
-const Editor = ({ initialValue, onChange }: EditorProp) => {
+const Editor = ({ initialValue, onChange, }: EditorProp) => {
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
+
+
+  const extensions = [...defaultExtensions, slashCommand,];
+
 
   return (
     <EditorRoot>

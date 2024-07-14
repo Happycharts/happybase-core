@@ -56,6 +56,15 @@ dependencies:
   '@hookform/resolvers':
     specifier: ^3.9.0
     version: 3.9.0(react-hook-form@7.52.1)
+  '@liveblocks/client':
+    specifier: ^2.2.2
+    version: 2.2.2
+  '@liveblocks/react':
+    specifier: ^2.2.2
+    version: 2.2.2(react@18.3.1)
+  '@liveblocks/yjs':
+    specifier: ^2.2.2
+    version: 2.2.2(yjs@13.6.18)
   '@lottielab/lottie-player':
     specifier: ^1.0.3
     version: 1.0.3(react@18.3.1)
@@ -161,9 +170,21 @@ dependencies:
   '@tiptap/core':
     specifier: ^2.4.0
     version: 2.4.0(@tiptap/pm@2.4.0)
+  '@tiptap/extension-collaboration':
+    specifier: ^2.4.0
+    version: 2.4.0(@tiptap/core@2.4.0)(@tiptap/pm@2.4.0)(y-prosemirror@1.2.5)
+  '@tiptap/extension-collaboration-cursor':
+    specifier: ^2.4.0
+    version: 2.4.0(@tiptap/core@2.4.0)(y-prosemirror@1.2.5)
+  '@tiptap/pm':
+    specifier: ^2.4.0
+    version: 2.4.0
   '@tiptap/react':
     specifier: ^2.4.0
     version: 2.4.0(@tiptap/core@2.4.0)(@tiptap/pm@2.4.0)(react-dom@18.3.1)(react@18.3.1)
+  '@tiptap/starter-kit':
+    specifier: ^2.4.0
+    version: 2.4.0(@tiptap/pm@2.4.0)
   '@types/cors':
     specifier: ^2.8.17
     version: 2.8.17
@@ -183,7 +204,7 @@ dependencies:
     specifier: ^3.0.2
     version: 3.0.2(@babel/runtime@7.24.8)(react-dom@18.3.1)(react@18.3.1)
   '@veltdev/react':
-    specifier: ^2.0.0
+    specifier: ^2.0.4
     version: 2.0.4(react-dom@18.3.1)(react@18.3.1)
   ai:
     specifier: ^3.2.19
@@ -353,7 +374,7 @@ devDependencies:
     specifier: ^10.0.0
     version: 10.0.0
   '@veltdev/types':
-    specifier: ^2.0.0
+    specifier: ^2.0.4
     version: 2.0.4
   eslint:
     specifier: ^8
@@ -2364,6 +2385,39 @@ packages:
     resolution: {integrity: sha512-QuTgnG52Poic7uM1AN5yJ09QMe0O28e10XzSvWDz02TJiiKee4stsiownEIadWm8nYzyDAyT+gKzUoZmiWQtsQ==}
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.2.0
+    dev: false
+
+  /@liveblocks/client@2.2.2:
+    resolution: {integrity: sha512-o026EU74U9N+w98ouqcXSPS6NjJ0n3IYoHodiDFT5ath/h2CESy6KpKJqe9p+NvykCLf9vZAWHC60w1Msl+RVg==}
+    dependencies:
+      '@liveblocks/core': 2.2.2
+    dev: false
+
+  /@liveblocks/core@2.2.2:
+    resolution: {integrity: sha512-0vrh9DP4FkHOsb1nD+MsSlu1mbjVfI5SePiWNYoroct1EheSb4dWzIm+m+P+USvgeX1SDMyCxe2PmwQcUF4J2w==}
+    dev: false
+
+  /@liveblocks/react@2.2.2(react@18.3.1):
+    resolution: {integrity: sha512-EP9nM/V5Hbm3dAIrQOOKONaD5bIZdJDKt1ym69LFMF5WDQmupgVJjJLhK5mcVpgwqT3/5iClSfpigi6t0dG/WA==}
+    peerDependencies:
+      react: ^16.14.0 || ^17 || ^18
+    dependencies:
+      '@liveblocks/client': 2.2.2
+      '@liveblocks/core': 2.2.2
+      nanoid: 3.3.7
+      react: 18.3.1
+      use-sync-external-store: 1.2.2(react@18.3.1)
+    dev: false
+
+  /@liveblocks/yjs@2.2.2(yjs@13.6.18):
+    resolution: {integrity: sha512-KKMwONxuCsIaQQnGI+5FKPls5mtXEFxGhzwaxwhJWy1zWrsyWeIsNxWrPy2cHxvHgWF6oP8MdKPEh3aJ3ycR4w==}
+    peerDependencies:
+      yjs: ^13.6.1
+    dependencies:
+      '@liveblocks/client': 2.2.2
+      '@liveblocks/core': 2.2.2
+      js-base64: 3.7.7
+      yjs: 13.6.18
     dev: false
 
   /@lottielab/lottie-player@1.0.3(react@18.3.1):
@@ -8518,6 +8572,10 @@ packages:
     dependencies:
       '@types/react': 18.3.3
       react: 18.3.1
+    dev: false
+
+  /js-base64@3.7.7:
+    resolution: {integrity: sha512-7rCnleh0z2CkXhH67J8K1Ytz0b2Y+yxTPL+/KOJoa20hfnVQ/3/T6W/KflYI4bRHRagNeXeU2bkNGI3v1oS/lw==}
     dev: false
 
   /js-cookie@3.0.5:

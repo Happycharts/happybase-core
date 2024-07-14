@@ -36,6 +36,7 @@ import "react-activity/dist/Sentry.css";
 import Dots from "react-activity/dist/Dots";
 import "react-activity/dist/Dots.css";
 import { Input } from '@/components/ui/input';
+import { useIdentify} from "@veltdev/react";
 
 type SourceData = {
   logo: string;
@@ -99,7 +100,7 @@ const sourceSchemas = {
   }),
 }
 
-export default function SourcesPage() {
+export default function HomePage() {
   const [selectedSchema, setSelectedSchema] = React.useState<any>(null)
   const [selectedSource, setSelectedSource] = useState<string | null>(null)
   const { isOpen } = useSidebarToggle();

@@ -9,6 +9,7 @@ import {
     AreaChart,
     Cuboid,
     House,
+    TextSearch
   } from "lucide-react";
 
 import {
@@ -51,6 +52,13 @@ import {
             submenus: []
           },
           {
+            href: "/documents",
+            label: "Documents",
+            active: pathname.includes("/documents"),
+            icon: TextSearch,
+            submenus: []
+          },
+          {
             href: "/sources",
             label: "Sources",
             active: pathname.includes("/sources"),
@@ -62,13 +70,6 @@ import {
                 active: pathname.includes("/sources"),
               },
             ]
-          },
-          {
-            href: "/chat",
-            label: "Generative Charts",
-            active: pathname.includes("/chat"),
-            icon: AreaChart,
-            submenus: []
           },
           {
             href: "/saved-components",

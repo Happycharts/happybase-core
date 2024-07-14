@@ -8,6 +8,15 @@ const isPublicRoute = createRouteMatcher([
   '/auth/(.*)'  // This matches '/auth/' and any path under it
 ]);
 
+const allowedRoutes = [
+  '/add-source',
+  '/documents',
+  '/home',
+  '/sources',
+  '/users',
+  '/api',
+  '/auth'
+];
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -33,8 +42,16 @@ function corsMiddleware(request: NextRequest, response: NextResponse) {
 }
 
 export default clerkMiddleware((auth, req) => {
-  const nextRequest = new NextRequest(req);
+  const nextRequest = req as NextRequest;
   const { pathname } = nextRequest.nextUrl;
+
+  // Check if the pathname starts with any of the allowed routes
+  const isAllowedRoute = allowedRoutes.some(route => pathname.startsWith(route));
+
+  // Redirect to '/home' if the route is not in the allowed list
+  if (!isAllowedRoute) {
+    return NextResponse.redirect(new URL('/home', nextRequest.url));
+  }
 
   if (!isPublicRoute(req)) {
     auth().protect();
