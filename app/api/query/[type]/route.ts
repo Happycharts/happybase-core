@@ -1,55 +1,83 @@
-// /api/query/clickhouse.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@clickhouse/client';
 import { auth } from '@clerk/nextjs/server';
 import { createClient as createSupabaseClient } from '@/app/utils/supabase/server';
 
+interface ClickHouseCredentials {
+  url: string;
+  username: string;
+  password: string;
+}
+
 export async function POST(req: NextRequest) {
-  const { userId, orgId } = auth();
-  if (!userId || !orgId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const { query, sourceId } = await req.json();
-
-  if (!query || !sourceId) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-  }
-
-  const supabase = createSupabaseClient();
-  const { data: sourceData, error: sourceError } = await supabase
-    .from('sources')
-    .select('*')
-    .eq('id', sourceId)
-    .eq('organization', orgId)
-    .single();
-
-  if (sourceError || !sourceData) {
-    return NextResponse.json({ error: 'Source not found' }, { status: 404 });
-  }
-
-  const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY!;
-
-  const client = createClient({
-    url: sourceData.url,
-    username: sourceData.username,
-    password: sourceData.password,
-    database: sourceData.database,
-  });
-
   try {
-    const resultSet = await client.query({
-      query,
-      format: 'JSONEachRow',
-    });
+    const { userId, orgId } = auth();
+    if (!userId || !orgId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    const result = await resultSet.json();
+    const { query, sourceId } = await req.json();
 
-    await client.close();
+    if (!query || !sourceId) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
 
-    return NextResponse.json({ result }, { status: 200 });
+    const supabase = createSupabaseClient();
+    const { data: sourceData, error: sourceError } = await supabase
+      .from('sources')
+      .select('*')
+      .eq('id', sourceId)
+      .eq('organization', orgId)
+      .single();
+
+    if (sourceError || !sourceData) {
+      return NextResponse.json({ error: 'Source not found' }, { status: 404 });
+    }
+
+    const credentials: ClickHouseCredentials = sourceData.credentials;
+
+    let client;
+    try {
+      client = createClient({
+        url: credentials.url,
+        username: credentials.username,
+        password: credentials.password,
+      });
+
+      const resultStream = await client.query({
+        query,
+        format: 'JSONEachRow',
+      });
+
+      const results = [];
+      let rowCount = 0;
+      const MAX_ROWS = 10000; // Adjust this value based on your needs
+
+      for await (const row of resultStream.stream()) {
+        results.push(row);
+        rowCount++;
+        if (rowCount >= MAX_ROWS) {
+          break;
+        }
+      }
+
+      return NextResponse.json({ results, rowCount }, { status: 200 });
+    } catch (error) {
+      console.error('Error executing ClickHouse query:', error);
+      return NextResponse.json({ 
+        error: 'Error executing query', 
+        details: error instanceof Error ? error.message : String(error)
+      }, { status: 500 });
+    } finally {
+      if (client) {
+        await client.close();
+      }
+    }
   } catch (error) {
-    console.error('Error executing ClickHouse query:', error);
-    return NextResponse.json({ error: 'Error executing query' }, { status: 500 });
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 });
   }
 }
