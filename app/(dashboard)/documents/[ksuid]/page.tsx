@@ -24,6 +24,7 @@ export default function DocumentPage() {
   console.log(params)
 
   const viewer = useUser();
+  const token = useAuth().getToken();
 
 const userService = () => {
   return {
@@ -33,12 +34,15 @@ const userService = () => {
     photoURL: viewer.user?.imageUrl!,
     color: "#fc4c69", // Use valid Hex code value. Used in the background color of the user's avatar.
     textColor: "#000000", // Use valid Hex code value. Used in the text color of the user's intial when photoUrl is not present.
+    authToken: token!,
   }
 }
 
+console.log(token)
+
 const yourAuthenticatedUser = userService()
 
-const { uid, displayName, email, photoURL, color, textColor } = yourAuthenticatedUser;
+const { uid, displayName, email, photoURL, color, textColor, authToken } = yourAuthenticatedUser;
 
 const user: User = {
   userId: viewer.user?.id!,
