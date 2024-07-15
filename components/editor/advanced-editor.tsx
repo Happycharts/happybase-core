@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   EditorRoot,
   EditorCommand,
@@ -16,25 +16,24 @@ import { NodeSelector } from "./selectors/node-selector";
 import { LinkSelector } from "./selectors/link-selector";
 import { ColorSelector } from "./selectors/color-selector";
 import { TextButtons } from "./selectors/text-buttons";
-import { slashCommand, suggestionItems } from "./slash-command";
 import { handleImageDrop, handleImagePaste } from "novel/plugins";
 import { uploadFn } from "./image-upload";
 import { Separator } from "../ui/separator";
-import { QueryButton } from "./selectors/run-query";
+import { useSlashCommand } from "@/components/editor/slash-command"; // Import the new hook
 
 interface EditorProp {
   initialValue?: JSONContent;
   onChange: (value: JSONContent) => void;
 }
 
-const Editor = ({ initialValue, onChange, }: EditorProp) => {
+const Editor = ({ initialValue, onChange }: EditorProp) => {
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
 
+  const { slashCommand, suggestionItems } = useSlashCommand(); // Use the new hook
 
-  const extensions = [...defaultExtensions, slashCommand,];
-
+  const extensions = useMemo(() => [...defaultExtensions, slashCommand], [slashCommand]);
 
   return (
     <EditorRoot>
@@ -98,7 +97,6 @@ const Editor = ({ initialValue, onChange, }: EditorProp) => {
           <Separator orientation="vertical" />
           <ColorSelector open={openColor} onOpenChange={setOpenColor} />
           <Separator orientation="vertical" />
-          <QueryButton />
         </EditorBubble>
       </EditorContent>
     </EditorRoot>

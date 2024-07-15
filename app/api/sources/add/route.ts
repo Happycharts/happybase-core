@@ -1,4 +1,4 @@
-// /api/add-source.ts
+"use server"
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@/app/utils/supabase/server'

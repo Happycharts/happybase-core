@@ -1,3 +1,4 @@
+"use client"
 import {
   CheckSquare,
   Code,
@@ -10,13 +11,20 @@ import {
   MessageSquarePlus,
   Text,
   TextQuote,
+  Brackets,
+  Database,
 } from "lucide-react";
 import { createSuggestionItems } from "novel/extensions";
 import { Command, renderItems } from "novel/extensions";
 import { uploadFn } from "./image-upload";
+import React from 'react';
+import { useParams, useRouter } from 'next/navigation'
 
-export const suggestionItems = createSuggestionItems([
-  {
+export const useSlashCommand = () => {
+  const params = useParams<{ ksuid: string; }>()
+  const documentId = params.ksuid;
+  const suggestionItems = React.useMemo(() => createSuggestionItems([
+    {
     title: "Send Feedback",
     description: "Let us know how we can improve.",
     icon: <MessageSquarePlus size={18} />,
@@ -28,10 +36,10 @@ export const suggestionItems = createSuggestionItems([
   {
     title: "Connnect Source",
     description: "Connect to an SQL source",
-    icon: <MessageSquarePlus size={18} />,
+    icon: <Brackets size={18} />,
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).run();
-      window.open("/add-source", "_blank");
+      window.open("/sources/add", "_blank");
     },
   },
   {
@@ -49,17 +57,13 @@ export const suggestionItems = createSuggestionItems([
     },
   },
   {
-    title: "Run SQL",
-    description: "Just start typing with plain text.",
-    searchTerms: ["p", "paragraph"],
-    icon: <Text size={18} />,
+    title: "Open SQL Editor",
+    description: "Collaborate on SQL queries. (Opens in new tab)",
+    searchTerms: ["co", "sql", "query", "editor"],
+    icon: <Database size={18} />,
     command: ({ editor, range }) => {
-      editor
-        .chain()
-        .focus()
-        .deleteRange(range)
-        .toggleNode("paragraph", "paragraph")
-        .run();
+      editor.chain().focus().deleteRange(range).run();
+      window.open(`/documents/${documentId}/editor`, "_blank");
     },
   },
   {
@@ -174,11 +178,14 @@ export const suggestionItems = createSuggestionItems([
       input.click();
     },
   },
-]);
+]), []);
 
-export const slashCommand = Command.configure({
+const slashCommand = React.useMemo(() => Command.configure({
   suggestion: {
     items: () => suggestionItems,
     render: renderItems,
   },
-});
+}), [suggestionItems]);
+
+return { slashCommand, suggestionItems };
+};

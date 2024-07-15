@@ -12,7 +12,6 @@ import { Menu } from "@/components/sidebar/menu"
 import { useSidebarToggle } from "@/app/hooks/use-sidebar-toggle"
 import { SidebarToggle } from "@/components/sidebar/sidebar-toggle"
 import Logo from "@/public/Happybase.svg"
-import { ScoutBar } from "scoutbar"
 
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans", weight: ["400", "700"] })
@@ -60,7 +59,6 @@ export default function RootLayout({
               </Link>
             </Button>
             <Menu isOpen={sidebar?.isOpen} />
-            <ScoutBar actions={[]} />
           </div>
         </aside>
         <main className={cn(

@@ -1,245 +1,56 @@
-/* eslint-disable react/no-deprecated */
 "use client"
-import * as z from 'zod'
-import AutoForm from '@/components/auto-form'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React from 'react'
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ExternalLink, DollarSign, ClipboardCopy } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTrigger } from '@/components/ui/dialog'
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Toast } from '@/components/ui/toast'
-import React, { Component, useRef, use, useState } from 'react'
-import kafka from "@/public/kafka.svg"
-import notion from "@/public/notion.svg"
-import mongodb from "@/public/mongodb.svg"
-import hubspot from "@/public/hubspot.svg"
-import s3 from "@/public/s3.svg"
-import Image from 'next/image'
-import { Badge } from '@radix-ui/themes';
-import { render } from "react-dom";
+import { Button } from '@/components/ui/button'
 import { Label } from "@/components/ui/label"
-import { BrainCircuit } from 'lucide-react';
-import { useSidebarToggle } from '@/app/hooks/use-sidebar-toggle';
-import { useToast } from '@/components/ui/use-toast';
-import { useOrganization, useUser } from '@clerk/nextjs'
-import { VeltProvider, VeltComments, VeltPresence } from '@veltdev/react';
-import { createClerkSupabaseClient } from '@/app/utils/supabase/clerk'
-import mysql from 'mysql2/promise';
-import { Pool } from 'pg';
-import Lottie from '@lottielab/lottie-player/react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
-import Sentry from "react-activity/dist/Sentry";
-import "react-activity/dist/Sentry.css";
-import Dots from "react-activity/dist/Dots";
-import "react-activity/dist/Dots.css";
-import { Input } from '@/components/ui/input';
-import { useIdentify} from "@veltdev/react";
-
-type SourceData = {
-  logo: string;
-  name: string;
-  accessUrl: string;
-  monthlySpend: number;
-} | null;
-
-interface DataSourcePortalProps {
-  logo: string;
-  name: string;
-  accessUrl: string;
-  monthlySpend: number;
-}
-
-const sourceSchemas = {
-  snowflake: z.object({
-    username: z.string(),
-    password: z.string(),
-    database: z.string(),
-    account: z.string(),
-    region: z.string(),
-    warehouse: z.string(),
-  }),
-  databricks: z.object({
-    accessToken: z.string(),
-    jbdcUrl: z.string(),
-    catalog: z.string(),
-    acceptPolicy: z.boolean(),
-  }),
-  bigquery: z.object({
-    projectId: z.string(),
-    credentials: z.string(),
-    location: z.string(),
-  }),
-  mongodb: z.object({
-    host: z.string(),
-    name: z.string(),
-    username: z.string(),
-    password: z.string(),
-    ssl: z.enum(['true', 'false']),
-  }),
-  database: z.object({
-    type: z.enum(['MySQL', 'Postgres', 'SQLLite', 'SQL Server']),
-    host: z.string(),
-    username: z.string(),
-    database: z.string(),
-    password: z.string(),
-  }),
-  redshift: z.object({
-    host: z.string(),
-    name: z.string(),
-    username: z.string(),
-    password: z.string(),
-  }),
-  clickhouse: z.object({
-    host: z.string(),
-    name: z.string(),
-    username: z.string(),
-    password: z.string(),
-  }),
-}
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Calendar } from "@/components/ui/calendar"
+import { Badge } from "@/components/ui/badge"
+import { Mail, Phone, MessageSquare, Calendar as CalendarIcon, Play } from 'lucide-react'
+import { useUser } from "@clerk/nextjs"
+import { useOrganization } from '@clerk/nextjs';
+import Cal, { getCalApi } from "@calcom/embed-react";
+import { useEffect } from "react";
+import Link from "next/link";
 
 export default function HomePage() {
-  const [selectedSchema, setSelectedSchema] = React.useState<any>(null)
-  const [selectedSource, setSelectedSource] = useState<string | null>(null)
-  const { isOpen } = useSidebarToggle();
-  const { toast } = useToast();
-  const organization = useOrganization();
-  const orgMetadata = organization?.organization?.publicMetadata || {};
-  const cubeApi = orgMetadata.cube_api || '';
-  const sourceType = orgMetadata.source || '';
-  const orgName = organization?.organization?.slug || '';
-  const [sources, setSources] = useState<{ id: string; name: string; type: string; status: string }[]>([]);
-  const user = useUser();
-  const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
-  const [showCollabDialog, setShowCollabDialog] = useState(false);
-  const veltKey = process.env.NEXT_PUBLIC_VELT_KEY!;
-  const [tableNames, setTableNames] = useState<string[]>([]);
-  const [selectedTable, setSelectedTable] = useState<string | null>(null);
-  const [isTestingConnection, setIsTestingConnection] = useState(false);
-  const formRef = useRef<any>(null);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
-  
-  const sourceOptions = {
-    Snowflake: { label: "Snowflake", icon: "./snowflake.svg" },
-    databricks: { label: "Databricks", icon: "./databricks.svg" },
-    bigquery: { label: "Google BigQuery", icon: "./bigquery.svg" },
-    redshift: { label: "Amazon Redshift", icon: "./redshift.svg" },
-    clickhouse: { label: "Clickhouse", icon: "./clickhouse.svg" },
-    database: { label: "Database", icon: "./database.svg" },
-    mongodb: { label: "MongoDB", icon: "./mongodb.svg" },
-  };
-
-  const sourceRoutes = {
-  snowflake: 'Snowflake',
-  databricks: 'Databricks',
-  bigquery: 'BigQuery',
-  redshift: 'Redshift',
-  clickhouse: 'Clickhouse',
-  database: 'Database',
-  mongodb: 'MongoDB',
-};
-
-interface ConnectionDetails {
-  host: string;
-  user: string;
-  password: string;
-  database: string;
-  port: number;
-  driver: string;
-  ssl: boolean;
-  type: string;
-}
-
-const handleSourceChange = (value: string) => {
-  setSelectedSource(value);
-  setSelectedSchema(sourceSchemas[value as keyof typeof sourceSchemas]);
-};
-
-
-// const handleSubmit = async (data: any) => {
-//   try {
-//     const response = await fetch('/api/deploy-cube', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({
-//         orgName,
-//         sourceType: selectedSource,
-//         connectionDetails: data,
-//       }),
-//     });
-
-//     if (!response.ok) {
-//       throw new Error('Deployment failed');
-//     }
-
-//     const result = await response.json();
-    
-//     // Handle successful deployment
-//     toast({
-//       title: "Deployment Successful",
-//       description: `Your Cube instance is now available at ${result.cubeUrl}`,
-//     });
-
-//     // Update UI or state as needed
-//     setNewSource({
-//       logo: sourceOptions[selectedSource as keyof typeof sourceOptions].icon,
-//       name: data.name || selectedSource || '',
-//       accessUrl: result.cubeUrl,
-//       monthlySpend: 100 // Replace with actual calculation
-//     });
-
-//     setSelectedSource(null);
-//     setSelectedSchema(null);
-//   } catch (error) {
-//     console.error('Deployment error:', error);
-//     toast({
-//       title: "Deployment Failed",
-//       description: "There was an error deploying your Cube instance. Please try again.",
-//       variant: "destructive",
-//     });
-//   }
-// };
-
+  const user = useUser().user?.firstName
+  const organization = useOrganization().organization?.name
+  useEffect(()=>{
+    (async function () {
+      const cal = await getCalApi({});
+      cal("ui", {"styles":{"branding":{"brandColor":"#000000"}},"hideEventTypeDetails":false,"layout":"month_view"});
+    })();
+  }, [])
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex gap-4 mb-6">
-        <Card className="w-full">
-        <CardContent className="p-6">
-          <div className="flex items-center space-x-4 mb-6">
-            <Avatar className="h-20 w-20">
+    <div className="container mx-auto p-6 bg-white min-h-screen">
+      <Card className="w-full max-w-4xl mx-auto shadow-lg border-black border-opacity-20 rounded-lg mb-8">
+        <CardContent className="p-8">
+          <h1 className="text-4xl font-bold text-black mb-8 text-center">Welcome, {user}!</h1>
+          <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8 mb-8">
+            <Avatar className="h-32 w-32 ring-4 ring-black ring-offset-4">
               <AvatarImage src="/jamesbohrman.jpg" alt="James Bohrman" />
-              <AvatarFallback>JB</AvatarFallback>
+              <AvatarFallback className="text-2xl">JB</AvatarFallback>
             </Avatar>
-            <div>
-              <h2 className="text-2xl font-bold">James Bohrman</h2>
-              <p className="text-gray-600">Your Dedicated Account Manager</p>
+            <div className="text-center md:text-left">
+              <h2 className="text-3xl font-bold text-black">James Bohrman</h2>
+              <p className="text-lg text-black font-medium">Account Manager - {organization} </p>
+              <div className="mt-2 flex flex-wrap justify-center md:justify-start gap-2">
+                <Badge variant="outline" className="border-black text-black">SQL Expert</Badge>
+                <Badge variant="outline" className="border-black text-black">Pythonista</Badge>
+                <Badge variant="outline" className="border-black text-black">Enterprise</Badge>
+              </div>
             </div>
           </div> 
-          <div className="bg-gray-100 p-4 rounded-lg mb-6">
-          <p className="text-gray-800 italic">
-            &quot;I&apos;m here to ensure your success with our platform. Don&apos;t hesitate to reach out if you need any assistance!&quot;
-          </p>
-        </div>
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div>
-              <Label className="text-sm text-gray-500">Email</Label>
-              <p className="font-medium">jdbohrman@outlook.com</p>
-            </div>
-            <div>
-              <Label className="text-sm text-gray-500">Phone</Label>
-              <p className="font-medium">+1 (555) 123-4567</p>
-            </div>
-          </div>
+
+          <blockquote className="bg-gray-50 border-l-4 border-black p-4 rounded-r-lg mb-8 italic text-black">
+            "I'm here to ensure your success with our platform. Don't hesitate to reach out if you need any assistance!"
+          </blockquote>
           
-          <div className="flex space-x-4">
-            <Button className="flex-1 bg-black hover:bg-gray-400 text-white">
-              <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-              </svg>
+          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+            <Button className="flex-1 bg-black hover:bg-gray-800 text-white transition-colors duration-300">
+              <Mail className="mr-2 h-5 w-5" />
               Email James
             </Button>
             <Button className="flex-1 bg-black hover:bg-green-600 text-white">
@@ -251,7 +62,45 @@ const handleSourceChange = (value: string) => {
           </div>
         </CardContent>
       </Card>
-      </div>
+
+      {/* New Walkthrough Card */}
+{/* Walkthrough Card */}
+      <Card className="w-full max-w-4xl mx-auto shadow-lg border-black border-opacity-20 rounded-lg mt-8">
+        <CardContent className="p-8">
+          <h2 className="text-3xl font-bold text-black mb-6 text-left">Getting Started </h2>
+          <p className="text-lg text-black mb-6 text-left">Follow these steps to set up and start using our platform effectively.</p>
+          
+          <ol className="space-y-6">
+            <li className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-xl  font-semibold text-black mb-3">1. Connect a data source</h3>
+              <p className="text-black mb-4">Connect your first data source do you can start querying your data.</p>
+              <Button className="bg-black hover:bg-gray-800 text-white transition-colors duration-300">
+              <Link href="/sources">
+                Add a Source
+                </Link>
+              </Button>
+            </li>
+            <li className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-black mb-3">2. Open your first document</h3>
+              <p className="text-black mb-4">Create collaborative documents for planning data strategy</p>
+              <Button className="bg-black hover:bg-gray-800 text-white transition-colors duration-300">
+              <Link href="/documents">
+                Open a document
+                </Link>
+              </Button>
+            </li>
+            <li className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-black mb-3">3. Invite your team</h3>
+              <p className="text-black mb-4">Invite your teammates to make collaboration more fun and effective</p>
+            </li>
+            <li className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-black mb-3">4. Start querying your data</h3>
+              <p className="text-black mb-4">Open a collaborative SQL editor right from your scratchpad to go from planning to execution</p>
+            </li>
+          </ol>
+
+        </CardContent>
+      </Card>
     </div>
   );
 }

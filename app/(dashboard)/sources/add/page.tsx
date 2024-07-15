@@ -1,29 +1,36 @@
 "use client"
 import { useState } from "react"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { useToast } from "@/components/ui/use-toast"
 import Link from "next/link"
 import Image from "next/image"
 import { Dialog, DialogTrigger, DialogTitle, DialogDescription, DialogContent } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Toast } from '@/components/ui/toast'
+import { useToast } from "@/components/ui/use-toast"
+import { Toaster } from "@/components/ui/toaster"
 
 const sources = [
   {
     name: "Clickhouse",
     description: "Add a Clickhouse data source",
-    iconSrc: "./clickhouse.svg"
+    iconSrc: "https://asset.brandfetch.io/idnezyZEJm/id_CPPYVKt.jpeg?updated=1684474240695"
   },
   {
     name: "Snowflake",
     description: "Add a Snowflake data source",
-    iconSrc: "./snowflake.svg"
+    iconSrc: "https://asset.brandfetch.io/idJz-fGD_q/iddesHsUDj.svg?updated=1668517499361"
   },
   {
     name: "Postgres",
     description: "Add a Postgres data source",
-    iconSrc: "./postgresql.svg"
-  }
+    iconSrc: "https://asset.brandfetch.io/idjSeCeMle/idZol6htuN.svg?updated=1716432965006"
+  },
+  {
+    name: "Cube",
+    description: "Add a Cube semantic layer source",
+    iconSrc: "https://asset.brandfetch.io/idpExA2n0v/idsPNHb6Eg.svg?updated=1668080525345"
+  },
 ]
 
 interface DialogState {
@@ -37,12 +44,13 @@ export default function AddSourcePage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, sourceName: string) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const credentials = {
-      url: formData.get('url'),
-      username: formData.get('username'),
-      password: formData.get('password'),
-    };
-    const response = await fetch('/api/add-source/', {
+    const credentials: { [key: string]: string } = {};
+
+    formData.forEach((value, key) => {
+      credentials[key] = value.toString();
+    });
+
+    const response = await fetch(`/api/sources/add`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -78,11 +86,11 @@ export default function AddSourcePage() {
               <Card className="hover:shadow-lg transition-shadow duration-300">
                 <CardHeader className="flex flex-row items-center space-x-2">
                   <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-                    <Image
+                    <img
                       src={source.iconSrc}
                       alt={`${source.name} icon`}
-                      width={20}
-                      height={20}
+                      width={25}
+                      height={25}
                     />
                   </div>
                   <div>
@@ -92,14 +100,14 @@ export default function AddSourcePage() {
                 </CardHeader>
               </Card>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="bg-white">
               <DialogTitle>Connect {source.name}</DialogTitle>
               <DialogDescription>
                 {source.name === 'Clickhouse' && (
                   <form onSubmit={(e) => handleSubmit(e, source.name)}>
                     <p>Fill out your connection details to begin querying your data</p>
                     <div className="space-y-4 mt-4">
-                      <Input name="url" placeholder="Clickhouse URL" />
+                      <Input name="host" placeholder="Clickhouse URL" />
                       <Input name="username" placeholder="Username" />
                       <Input name="password" placeholder="Password" type="password" />
                     </div>
@@ -107,19 +115,47 @@ export default function AddSourcePage() {
                   </form>
                 )}
                 {source.name === 'Snowflake' && (
-                  <>
+                  <form onSubmit={(e) => handleSubmit(e, source.name)}>
                     <p>Fill out your connection details to begin querying your data</p>
-                  </>
+                    <div className="space-y-4 mt-4">
+                      <Input name="account" placeholder="Snowflake Account" />
+                      <Input name="username" placeholder="Username" />
+                      <Input name="password" placeholder="Password" type="password" />
+                    </div>
+                    <Button type="submit" className="w-full bg-black mt-4">Connect</Button>
+                  </form>
                 )}
                 {source.name === 'Postgres' && (
-                  <>
-                    <p>Fill out your connection details to begin querying your data</p>
-                  </>
+                <form onSubmit={(e) => handleSubmit(e, source.name)}>
+                  <p>Fill out your connection details to begin querying your data</p>
+                  <div className="space-y-4 mt-4">
+                    <Input name="host" placeholder="Host" />
+                    <Input name="port" placeholder="5432" />
+                    <Input name="database" placeholder="Database" />
+                    <Input name="username" placeholder="Username" />
+                    <Input name="password" placeholder="Password" type="password" />
+                  </div>
+                  <Button type="submit" className="w-full bg-black mt-4">Connect</Button>
+                </form>
+                )}
+                {source.name === 'Cube' && (
+                <form onSubmit={(e) => handleSubmit(e, source.name)}>
+                  <p>Fill out your connection details to begin querying your data</p>
+                  <div className="space-y-4 mt-4">
+                    <Input name="host" placeholder="Cube SQL API" />
+                    <Input name="port" placeholder="15432" />
+                    <Input name="database" placeholder="Database" />
+                    <Input name="username" placeholder="Username" />
+                    <Input name="password" placeholder="Password" type="password" />
+                  </div>
+                  <Button type="submit" className="w-full bg-black mt-4">Connect</Button>
+                </form>
                 )}
               </DialogDescription>
             </DialogContent>
           </Dialog>
         ))}
+        <Toaster />
       </div>
     </div>
   )

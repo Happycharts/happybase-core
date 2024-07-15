@@ -3,12 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import React, { useEffect, useState } from 'react';
-import { useOrganization, useUser } from '@clerk/nextjs';
+import { useOrganization } from '@clerk/nextjs';
 import { createClerkSupabaseClient } from '@/app/utils/supabase/clerk';
-import Image from 'next/image';
 import Link from 'next/link';
-import { PlusCircle, Edit2, FileBox, Trash2, AlertCircle } from 'lucide-react';
+import { PlusCircle, FileBox, Trash2, AlertCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Toaster } from "@/components/ui/toaster"
 
 type SourceData = {
   id: string;
@@ -17,11 +18,11 @@ type SourceData = {
 
 const getSourceLogo = (type: string) => {
   const lowercaseName = type.toLowerCase();
-  if (lowercaseName.includes('snowflake')) return '/snowflake.svg';
-  if (lowercaseName.includes('bigquery')) return '/bigquery.svg';
-  if (lowercaseName.includes('redshift')) return '/redshift.svg';
-  if (lowercaseName.includes('postgres')) return '/postgres.svg';
-  if (lowercaseName.includes('clickhouse')) return '/clickhouse.svg';
+  if (lowercaseName.includes('snowflake')) return 'https://asset.brandfetch.io/idJz-fGD_q/iddesHsUDj.svg?updated=1668517499361';
+  if (lowercaseName.includes('postgres')) return 'https://asset.brandfetch.io/idjSeCeMle/idZol6htuN.svg?updated=1716432965006';
+  if (lowercaseName.includes('cube')) return 'https://asset.brandfetch.io/idpExA2n0v/idsPNHb6Eg.svg?updated=1668080525345';
+  if (lowercaseName.includes('mysql')) return 'https://upload.wikimedia.org/wikipedia/labs/8/8e/Mysql_logo.png';
+  if (lowercaseName.includes('clickhouse')) return 'https://asset.brandfetch.io/idnezyZEJm/id_CPPYVKt.jpeg?updated=1684474240695';
   return '/database.svg'; // Default logo
 };
 
@@ -29,6 +30,7 @@ export default function SchemasPage() {
   const { organization } = useOrganization();
   const [sources, setSources] = useState<SourceData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [sourceToDelete, setSourceToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -59,6 +61,27 @@ export default function SchemasPage() {
     };
   }, [organization?.id]);
 
+  const deleteSource = async () => {
+    if (!organization?.id || !sourceToDelete) return;
+
+    try {
+      const response = await fetch(`/api/sources/delete?id=${sourceToDelete}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete source');
+      }
+
+      // Remove the deleted source from the state
+      setSources(sources.filter(source => source.id !== sourceToDelete));
+      setSourceToDelete(null);
+    } catch (error) {
+      console.error('Error deleting source:', error);
+      // You might want to show an error message to the user here
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="shadow-lg">
@@ -78,7 +101,7 @@ export default function SchemasPage() {
               <h3 className="mt-2 text-sm font-medium text-gray-900">No data sources</h3>
               <p className="mt-1 text-sm text-gray-500">Get started by adding a new data source.</p>
               <div className="mt-6">
-                <Link href="/add-source">
+                <Link href="/sources/add">
                   <Button className="bg-black hover:bg-primary text-white">
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Data Source
                   </Button>
@@ -99,11 +122,9 @@ export default function SchemasPage() {
                   <TableRow key={source.id} className="hover:bg-gray-50">
                     <TableCell className="flex items-center space-x-3">
                       <div className="relative w-8 h-8">
-                        <Image 
+                        <img 
                           src={getSourceLogo(source.type)}
                           alt={source.type}
-                          layout="fill"
-                          objectFit="contain"
                           onError={(e) => {
                             e.currentTarget.src = '/database.svg';
                           }}
@@ -118,7 +139,7 @@ export default function SchemasPage() {
                           <TooltipTrigger asChild>
                             <Button variant="outline" size="sm" className="mr-2">
                               <Link href={`/schemas/${source.id}`}>
-                              <FileBox className="h-4 w-4" />
+                                <FileBox className="h-4 w-4" />
                               </Link>
                             </Button>
                           </TooltipTrigger>
@@ -130,7 +151,12 @@ export default function SchemasPage() {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-red-600 hover:text-red-700"
+                              onClick={() => setSourceToDelete(source.id)}
+                            >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </TooltipTrigger>
@@ -147,6 +173,22 @@ export default function SchemasPage() {
           )}
         </CardContent>
       </Card>
+      <Toaster />
+
+      <Dialog open={!!sourceToDelete} onOpenChange={() => setSourceToDelete(null)}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>Are you sure you want to delete this source?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the source and all associated data.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSourceToDelete(null)}>Cancel</Button>
+            <Button  onClick={deleteSource}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
