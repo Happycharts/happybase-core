@@ -16,15 +16,16 @@ import { useSetDocumentId } from '@veltdev/react';
 import { useIdentify } from '@veltdev/react'
 import { useAuth, useUser, useOrganization } from "@clerk/nextjs"
 import { User } from "@veltdev/types/types";
+import { Toaster } from "@/components/ui/toaster";
 
 
 export default function DocumentPage() {
   const router = useRouter();
   const params = useParams<{ ksuid: string; }>()
+  const [currentDocumentId, setCurrentDocumentId] = useState<string | null>(null);
   console.log(params)
 
   const viewer = useUser();
-  const token = useAuth().getToken();
 
 const userService = () => {
   return {
@@ -34,15 +35,12 @@ const userService = () => {
     photoURL: viewer.user?.imageUrl!,
     color: "#fc4c69", // Use valid Hex code value. Used in the background color of the user's avatar.
     textColor: "#000000", // Use valid Hex code value. Used in the text color of the user's intial when photoUrl is not present.
-    authToken: token!,
   }
 }
 
-console.log(token)
-
 const yourAuthenticatedUser = userService()
 
-const { uid, displayName, email, photoURL, color, textColor, authToken } = yourAuthenticatedUser;
+const { uid, displayName, email, photoURL, color, textColor } = yourAuthenticatedUser;
 
 const user: User = {
   userId: viewer.user?.id!,
@@ -58,6 +56,12 @@ useIdentify(user)
   const ksuid = params.ksuid;
 
   useSetDocumentId(ksuid);
+
+  useEffect(() => {
+  if (ksuid) {
+    setCurrentDocumentId(ksuid);
+  }
+}, [ksuid]);
 
   interface Source {
     id: number;
@@ -83,25 +87,6 @@ useIdentify(user)
   const handleAddSource = useCallback(() => {
     router.push('/sources/add');
   }, [router]);
-
-  useEffect(() => {
-    const fetchSources = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch('/api/fetch-sources');
-        if (!response.ok) {
-          throw new Error('Failed to fetch sources');
-        }
-        const { data } = await response.json();
-        setSources(data);
-      } catch (error) {
-        console.error('Error fetching sources:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchSources();
-  }, []);
 
   return (
     <ThemeProvider
@@ -155,6 +140,7 @@ useIdentify(user)
         </div>
         <Editor initialValue={value} onChange={setValue} />
       </div>
+      <Toaster />
     </ThemeProvider>
   );
 }

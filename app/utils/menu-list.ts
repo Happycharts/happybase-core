@@ -69,6 +69,11 @@ import {
                 label: "Manage Sources",
                 active: pathname.includes("/sources"),
               },
+              {
+                href: "/sources/add",
+                label: "Add Sources",
+                active: pathname.includes("/sources/add"),
+              },
             ]
           },
         ]

@@ -9,7 +9,6 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 const allowedRoutes = [
-  '/add-source',
   '/documents',
   '/home',
   '/sources',

@@ -11,8 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Menu } from "@/components/sidebar/menu"
 import { useSidebarToggle } from "@/app/hooks/use-sidebar-toggle"
 import { SidebarToggle } from "@/components/sidebar/sidebar-toggle"
-import Logo from "@/public/happycharts.svg"
-import { ScoutBar } from "scoutbar"
+import Logo from "@/public/Happybase.svg"
 
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans", weight: ["400", "700"] })
@@ -55,12 +54,11 @@ export default function RootLayout({
                       : "translate-x-0 opacity-100"
                   )}
                 >
-                Happycharts
+                Happybase
                 </h1>
               </Link>
             </Button>
             <Menu isOpen={sidebar?.isOpen} />
-            <ScoutBar actions={[]} />
           </div>
         </aside>
         <main className={cn(
