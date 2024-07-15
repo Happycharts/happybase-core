@@ -17,6 +17,7 @@ import { useIdentify } from '@veltdev/react'
 import { useAuth, useUser, useOrganization } from "@clerk/nextjs"
 import { User } from "@veltdev/types/types";
 import { Toaster } from "@/components/ui/toaster";
+import { VeltPresence } from "@veltdev/react";
 
 
 export default function DocumentPage() {
@@ -135,6 +136,7 @@ useIdentify(user)
                 )}
               </SelectContent>
             </Select>
+            <VeltPresence />
             <Button className="text-white bg-black hover:text-black" onClick={handleNewDoc}>New Document</Button>
           </div>
         </div>
