@@ -1,5 +1,5 @@
 ## 😜 Happybase: Collaborative data for normies
-![Happybase](./public/sqlfor    normies.png)
+![Happybase](./public/sqlfornormies.png)
 
 Welcome to Happybase, a powerful yet user-friendly platform designed to help users create generative BI dashboards with ease. Happybase leverages a notion-like interfact to provide seamless integration with your data sources and powerful generative AI capabilities (soon). This README will dive into the architecture, key components, and routes of Happybase.
 
