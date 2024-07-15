@@ -55,9 +55,9 @@ This API route manages the fetching of sources from Supabase in a multi-tenance 
 
 This API route creates documents with an ID schema based on Segment's KSUID. It also handles the creation of new documents and the addition of new data to existing documents.
 
-### 🪄 Vercel AI Functionality
+### 🪄 Velt Realtime Collaboration
 
-Happybase uses Vercel AI to provide generative charting capabilities through function calling. Here’s a deeper look into the Vercel AI logic:
+Happybase uses Velt to power realtime collaboration between multiple users in a Figma-esque interface. Users can create documents, add data to documents, and comment on documents.
 
 #### In document SQL querying
 
