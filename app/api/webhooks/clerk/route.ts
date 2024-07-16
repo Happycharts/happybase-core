@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Webhook } from 'svix';
-import { WebhookEvent, auth } from '@clerk/nextjs/server';
+import { WebhookEvent } from '@clerk/nextjs/server';
 import { createClient } from '@/app/utils/supabase/server';
 import Stripe from 'stripe';
-import next from 'next';
 import { clerkClient } from "@clerk/nextjs/server";
 
 const webhookSecret = process.env.CLERK_WEBHOOK_SECRET!;
-const supabase = createClient();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20', // Use the latest API version
-});
-const clerk = clerkClient();
 
 export async function POST(request: NextRequest) {
+  const supabase = createClient();
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2024-06-20', // Use the latest API version
+  });
+
   const body = await request.text();
   const headers = request.headers;
 
@@ -54,7 +53,7 @@ export async function POST(request: NextRequest) {
           { first_name: first_name, last_name: last_name, email: email_addresses, private_metadata: private_metadata, public_metadata: public_metadata, organization: organization_memberships![0].organization },
         ]);
       }
-      insertUser();      
+      await insertUser();      
       break;
     case 'user.updated':
       const updatedUser = event.data;
@@ -65,27 +64,26 @@ export async function POST(request: NextRequest) {
     case 'organization.created':
       const organization = event.data;
       console.log(`Organization created: ${organization.id}`);
-      const { name, members_count, slug, } = organization;
+      const { name, members_count, slug } = organization;
 
       async function insertOrganization(): Promise<void> {
-        await supabase.from('users').insert([
-          {name, members_count, slug, },
+        await supabase.from('organizations').insert([
+          {name, members_count, slug},
         ]);
       }
-      insertOrganization();  
+      await insertOrganization();  
       
-      async function createStripeCustomer(name: string, email: string, ): Promise<void> {
+      async function createStripeCustomer(name: string, email: string): Promise<void> {
         try {
           const customer = await stripe.customers.create({
             name,
             email: email
           });
-          createStripeCustomer(name, email);
           const { stripeId, userId } = await request.json();
           await supabase.from('users').update({ stripeId: customer.id }).match({ email: email });
           await clerkClient.users.updateUserMetadata(userId, {
             privateMetadata: {
-              stripeId: stripeId
+              stripeId: customer.id
             }
           });
           console.log(`Customer created in Stripe: ${customer.id}`);
@@ -93,6 +91,8 @@ export async function POST(request: NextRequest) {
           console.error('Error creating customer in Stripe:', error);
         }
       }    
+      // You need to call createStripeCustomer here with the correct parameters
+      // await createStripeCustomer(name, email);
       break;
     // Add more cases as needed
     default:
