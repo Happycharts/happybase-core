@@ -2,7 +2,7 @@
 import { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { SignIn } from "@clerk/nextjs"
+import { CreateOrganization, SignUp } from "@clerk/nextjs"
 import { cn } from "@/app/utils/utils"
 import Logo from "@/public/happybase.svg"
 import { Shield, Zap, TrendingUp } from "lucide-react"
@@ -14,10 +14,10 @@ export const metadata: Metadata = {
 }
 
 interface FeatureItemProps {
-  icon: ReactNode;
-  title: string;
-  description: string;
-}
+    icon: ReactNode;
+    title: string;
+    description: string;
+  }
 
 export default function AuthenticationPage() {
   return (
@@ -60,7 +60,7 @@ export default function AuthenticationPage() {
       </div>
       <div className="bg-black lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-          <SignIn />
+          <CreateOrganization afterCreateOrganizationUrl="https://buy.stripe.com/cN27uf2B1gFagYofYY" path="/auth/create-organization" />
           <p className="px-8 text-center text-sm text-white">
             By clicking continue, you agree to our{" "}
             <Link
@@ -85,7 +85,7 @@ export default function AuthenticationPage() {
 }
 
 function FeatureItem({ icon, title, description }: FeatureItemProps) {
-  return (
+   return (
     <div className="flex items-start space-x-4">
       <div className="flex-shrink-0 p-2 bg-primary text-black rounded-lg">
         {icon}

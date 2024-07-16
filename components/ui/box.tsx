@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn } from "./cn";
 import { dialogTitleStaticClasses } from "./dialog";
 
-const Card = React.forwardRef<
+const Box = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -16,9 +16,9 @@ const Card = React.forwardRef<
     {...props}
   />
 ));
-Card.displayName = "Card";
+Box.displayName = "Boc";
 
-const CardHeader = React.forwardRef<
+const BoxHeader = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -28,9 +28,9 @@ const CardHeader = React.forwardRef<
     {...props}
   />
 ));
-CardHeader.displayName = "CardHeader";
+BoxHeader.displayName = "BoxHeader";
 
-const CardTitle = React.forwardRef<
+const BoxTitle = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => {
@@ -42,9 +42,9 @@ const CardTitle = React.forwardRef<
     />
   );
 });
-CardTitle.displayName = "CardTitle";
+BoxTitle.displayName = "BoxTitle";
 
-const CardDescription = React.forwardRef<
+const BoxDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
@@ -54,17 +54,17 @@ const CardDescription = React.forwardRef<
     {...props}
   />
 ));
-CardDescription.displayName = "CardDescription";
+BoxDescription.displayName = "BoxDescription";
 
-const CardContent = React.forwardRef<
+const BoxContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div ref={ref} className={cn("p-4 pt-0", className)} {...props} />
 ));
-CardContent.displayName = "CardContent";
+BoxContent.displayName = "BoxContent";
 
-const CardFooter = React.forwardRef<
+const BoxFooter = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -74,13 +74,13 @@ const CardFooter = React.forwardRef<
     {...props}
   />
 ));
-CardFooter.displayName = "CardFooter";
+BoxFooter.displayName = "BoxFooter";
 
 export {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+  Box,
+  BoxContent,
+  BoxDescription,
+  BoxFooter,
+  BoxHeader,
+  BoxTitle,
 };

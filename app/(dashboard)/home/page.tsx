@@ -13,10 +13,52 @@ import { useOrganization } from '@clerk/nextjs';
 import Cal, { getCalApi } from "@calcom/embed-react";
 import { useEffect } from "react";
 import Link from "next/link";
+import { createClient } from '@/app/utils/supabase/client';
 
 export default function HomePage() {
-  const user = useUser().user?.firstName
-  const organization = useOrganization().organization?.name
+  const user = useUser()
+  const firstName = useUser().user?.firstName
+  const lastName = useUser().user?.lastName
+  const email = useUser().user?.primaryEmailAddress?.emailAddress
+  const orgName = useOrganization().organization?.name
+  const orgId = useOrganization().organization?.id
+
+  useEffect(() => {
+    const upsertUserAndOrg = async () => {
+      if (user && orgId) {
+        try {
+          const response = await fetch('/api/users/upsert', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              user: {
+                id: user.user?.id,
+                first_name: user.user?.firstName,
+                last_name: user.user?.lastName,
+                email: user.user?.primaryEmailAddress?.emailAddress,
+              },
+              orgId,
+              orgName,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to upsert user and organization');
+          }
+
+          const result = await response.json();
+          console.log('Upsert successful:', result);
+        } catch (error) {
+          console.error('Error upserting user and organization:', error);
+        }
+      }
+    };
+
+    upsertUserAndOrg();
+  }, [user, orgId, orgName]);
+
   useEffect(()=>{
     (async function () {
       const cal = await getCalApi({});
@@ -27,7 +69,7 @@ export default function HomePage() {
     <div className="container mx-auto p-6 bg-white min-h-screen">
       <Card className="w-full max-w-4xl mx-auto shadow-lg border-black border-opacity-20 rounded-lg mb-8">
         <CardContent className="p-8">
-          <h1 className="text-4xl font-bold text-black mb-8 text-center">Welcome, {user}!</h1>
+          <h1 className="text-4xl font-bold text-black mb-8 text-center">Welcome, {firstName}!</h1>
           <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8 mb-8">
             <Avatar className="h-32 w-32 ring-4 ring-black ring-offset-4">
               <AvatarImage src="/jamesbohrman.jpg" alt="James Bohrman" />
@@ -35,7 +77,7 @@ export default function HomePage() {
             </Avatar>
             <div className="text-center md:text-left">
               <h2 className="text-3xl font-bold text-black">James Bohrman</h2>
-              <p className="text-lg text-black font-medium">Account Manager - {organization} </p>
+              <p className="text-lg text-black font-medium">Account Manager - {orgName} </p>
               <div className="mt-2 flex flex-wrap justify-center md:justify-start gap-2">
                 <Badge variant="outline" className="border-black text-black">SQL Expert</Badge>
                 <Badge variant="outline" className="border-black text-black">Pythonista</Badge>
