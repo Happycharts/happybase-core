@@ -23,48 +23,6 @@ export default function HomePage() {
   const orgName = useOrganization().organization?.name
   const orgId = useOrganization().organization?.id
 
-  useEffect(() => {
-    const upsertUserAndOrg = async () => {
-      if (user && orgId) {
-        try {
-          const response = await fetch('/api/users/upsert', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              user: {
-                id: user.user?.id,
-                first_name: user.user?.firstName,
-                last_name: user.user?.lastName,
-                email: user.user?.primaryEmailAddress?.emailAddress,
-              },
-              orgId,
-              orgName,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to upsert user and organization');
-          }
-
-          const result = await response.json();
-          console.log('Upsert successful:', result);
-        } catch (error) {
-          console.error('Error upserting user and organization:', error);
-        }
-      }
-    };
-
-    upsertUserAndOrg();
-  }, [user, orgId, orgName]);
-
-  useEffect(()=>{
-    (async function () {
-      const cal = await getCalApi({});
-      cal("ui", {"styles":{"branding":{"brandColor":"#000000"}},"hideEventTypeDetails":false,"layout":"month_view"});
-    })();
-  }, [])
   return (
     <div className="container mx-auto p-6 bg-white min-h-screen">
       <Card className="w-full max-w-4xl mx-auto shadow-lg border-black border-opacity-20 rounded-lg mb-8">
