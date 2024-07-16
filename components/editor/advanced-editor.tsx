@@ -20,26 +20,42 @@ import { handleImageDrop, handleImagePaste } from "novel/plugins";
 import { uploadFn } from "./image-upload";
 import { Separator } from "../ui/separator";
 import { useSlashCommand } from "@/components/editor/slash-command"; // Import the new hook
+import { useParams, useRouter } from 'next/navigation'
+import { useLiveStateData, useSetLiveStateData, useLiveState} from '@veltdev/react';
 
 interface EditorProp {
   initialValue?: JSONContent;
   onChange: (value: JSONContent) => void;
 }
 
+interface EditorLiveState {
+  content: JSONContent;
+}
+
 const Editor = ({ initialValue, onChange }: EditorProp) => {
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
+  const router = useRouter();
+  const params = useParams<{ ksuid: string; }>()
+  const ksuid = params.ksuid;
 
+  const liveStateDataId = ksuid;
+  const initialLiveStateData: EditorLiveState = { content: {} as JSONContent };
+  
+  const [editorContent, setEditorContent] = useLiveState<EditorLiveState>(liveStateDataId, initialLiveStateData);
   const { slashCommand, suggestionItems } = useSlashCommand(); // Use the new hook
 
+  
+  useSetLiveStateData(liveStateDataId, initialLiveStateData);
+  
   const extensions = useMemo(() => [...defaultExtensions, slashCommand], [slashCommand]);
 
   return (
     <EditorRoot>
       <EditorContent
         className="border p-4 rounded-xl text-black"
-        {...(initialValue && { initialContent: initialValue })}
+        initialContent={initialValue || editorContent.content}
         extensions={extensions}
         editorProps={{
           handleDOMEvents: {
@@ -53,7 +69,9 @@ const Editor = ({ initialValue, onChange }: EditorProp) => {
           },
         }}
         onUpdate={({ editor }) => {
-          onChange(editor.getJSON());
+          const jsonContent = editor.getJSON();
+          onChange(jsonContent);
+          setEditorContent({ content: jsonContent });
         }}
         slotAfter={<ImageResizer />}
       >

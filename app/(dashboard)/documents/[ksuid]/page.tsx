@@ -116,28 +116,8 @@ useIdentify(user)
             </Breadcrumb>
           </div>
           <div className="flex items-center space-x-2">
-            <Select value={selectedSource} onValueChange={setSelectedSource}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder={isLoading ? "Loading..." : "Select a source"} />
-              </SelectTrigger>
-              <SelectContent>
-                {isLoading ? (
-                  <SelectItem value="loading">Loading...</SelectItem>
-                ) : sources.length > 0 ? (
-                  sources.map((source) => (
-                    <SelectItem key={source.id} value={source.id.toString()}>
-                      {source.name || source.type}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="add" onSelect={handleAddSource}>
-                    Add a source
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
+            <p className="text-sm text-gray-500">Active Collaborators: </p>
             <VeltPresence />
-            <Button className="text-white bg-black hover:text-black" onClick={handleNewDoc}>New Document</Button>
           </div>
         </div>
         <Editor initialValue={value} onChange={setValue} />

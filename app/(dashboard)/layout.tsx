@@ -28,7 +28,7 @@ export default function RootLayout({
 
   return (
     <VeltProvider apiKey="gzMsfbG9JF8qkOB157aD">
-      <VeltComments />
+     <VeltComments />
      <VeltCommentsSidebar />
      <VeltSidebarButton />
      <VeltCommentTool />

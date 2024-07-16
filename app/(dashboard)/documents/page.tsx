@@ -13,6 +13,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import ksuid from 'ksuid'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Toaster } from "@/components/ui/toaster";
+import { Spinner } from '@/components/ui/spinner';
 
 interface Document {
   id: string;
@@ -28,6 +29,8 @@ export default function DocumentPage() {
   const { toast } = useToast();
   const [currentDocumentId, setCurrentDocumentId] = useState<string | null>(null);
   const [roomKUID, setRoomKUID] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   function useRoomKUID() {    
       useEffect(() => {
@@ -86,6 +89,8 @@ export default function DocumentPage() {
         description: "Failed to create a new document. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsCreating(false);
     }
   }
 
@@ -155,9 +160,14 @@ export default function DocumentPage() {
   }
 
   async function handleDeleteConfirm() {
-    if (documentToDelete) {
-      await deleteDocument(documentToDelete);
-      setDocumentToDelete(null);
+    if (documentToDelete && !isDeleting) {
+      setIsDeleting(true);
+      try {
+        await deleteDocument(documentToDelete);
+      } finally {
+        setIsDeleting(false);
+        setDocumentToDelete(null);
+      }
     }
   }
 
@@ -178,9 +188,15 @@ export default function DocumentPage() {
           </Breadcrumb>
           <div className="flex justify-between items-center">
             <CardTitle className="text-2xl font-bold text-gray-800">Your Documents</CardTitle>
-            <Button className="bg-black hover:bg-primary text-white" onClick={createDocument}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Create Document
-            </Button>
+            <Button 
+            className="bg-black hover:bg-primary text-white" 
+            onClick={createDocument}
+            disabled={isCreating}
+          >
+            {isCreating && <Spinner size="small" className="mr-2" />}
+            <PlusCircle className="mr-2 h-4 w-4" /> 
+            {isCreating ? 'Creating...' : 'Create Document'}
+          </Button>
           </div>
         </CardHeader>
         <CardContent>
