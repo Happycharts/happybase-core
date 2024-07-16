@@ -14,15 +14,15 @@ export const metadata: Metadata = {
 }
 
 interface FeatureItemProps {
-    icon: ReactNode;
-    title: string;
-    description: string;
-  }
+  icon: ReactNode;
+  title: string;
+  description: string;
+}
 
 export default function AuthenticationPage() {
   return (
-    <div className="container bg-black relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
+    <div className="bg-black h-screen w-screen overflow-hidden flex items-stretch">
+      <div className="hidden lg:flex lg:w-1/2 flex-col bg-muted p-10 text-white relative">
         <div className="absolute inset-0 bg-white">
           <Image
             src="/auth-background.jpg"
@@ -41,43 +41,26 @@ export default function AuthenticationPage() {
           <h2 className="text-3xl font-bold tracking-tight mb-8">Empower Your Business with Happybase</h2>
           <div className="grid gap-6">
             <FeatureItem 
-              icon={<Shield className="h-10 w-10" />}
+              icon={<Shield className="h-8 w-8" />}
               title="Secure JWT Authentication"
               description="Your data is protected with a secure JSON Web Token (JWT) that is generated on sign-in."
             />
             <FeatureItem 
-              icon={<Zap className="h-10 w-10" />}
+              icon={<Zap className="h-8 w-8" />}
               title="Fast & Reliable"
               description="Our platform is built with the latest technologies and is designed to be fast and reliable."
             />
             <FeatureItem 
-              icon={<TrendingUp className="h-10 w-10" />}
+              icon={<TrendingUp className="h-8 w-8" />}
               title="Scalable Solutions"
               description="From startups to enterprises, our platform grows seamlessly with your business needs."
             />
           </div>
         </div>
       </div>
-      <div className="bg-black lg:p-8">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-          <SignUp forceRedirectUrl="/create-organization" path="/auth/sign-up" />
-          <p className="px-8 text-center text-sm text-white">
-            By clicking continue, you agree to our{" "}
-            <Link
-              href="/terms"
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link
-              href="/privacy"
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              Privacy Policy
-            </Link>
-            .
-          </p>
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div className="max-w-md w-full space-y-6">
+          <SignUp />
         </div>
       </div>
     </div>
@@ -85,14 +68,14 @@ export default function AuthenticationPage() {
 }
 
 function FeatureItem({ icon, title, description }: FeatureItemProps) {
-   return (
+  return (
     <div className="flex items-start space-x-4">
       <div className="flex-shrink-0 p-2 bg-primary text-black rounded-lg">
         {icon}
       </div>
       <div>
-        <h3 className="text-xl text-black font-semibold mb-2">{title}</h3>
-        <p className="text-black">{description}</p>
+        <h3 className="text-lg text-black font-semibold mb-1">{title}</h3>
+        <p className="text-sm text-black">{description}</p>
       </div>
     </div>
   )

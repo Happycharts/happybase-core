@@ -28,19 +28,22 @@ interface EditorProp {
   onChange: (value: JSONContent) => void;
 }
 
+interface EditorLiveState {
+  content: JSONContent;
+}
+
 const Editor = ({ initialValue, onChange }: EditorProp) => {
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
   const router = useRouter();
   const params = useParams<{ ksuid: string; }>()
-  const [currentDocumentId, setCurrentDocumentId] = useState<string | null>(null);
   const ksuid = params.ksuid;
 
   const liveStateDataId = ksuid;
-  const initialLiveStateData = { content: {} };
-  const [editorContent, setEditorContent] = useLiveState(liveStateDataId, initialLiveStateData);
-
+  const initialLiveStateData: EditorLiveState = { content: {} as JSONContent };
+  
+  const [editorContent, setEditorContent] = useLiveState<EditorLiveState>(liveStateDataId, initialLiveStateData);
   const { slashCommand, suggestionItems } = useSlashCommand(); // Use the new hook
 
   
@@ -52,7 +55,7 @@ const Editor = ({ initialValue, onChange }: EditorProp) => {
     <EditorRoot>
       <EditorContent
         className="border p-4 rounded-xl text-black"
-        {...(initialValue && { initialContent: initialValue })}
+        initialContent={initialValue || editorContent.content}
         extensions={extensions}
         editorProps={{
           handleDOMEvents: {
