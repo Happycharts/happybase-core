@@ -22,7 +22,6 @@ const allowedRoutes = [
   '/auth',
   '/terms',
   '/privacy',
-  '/landing',
   '/pricing',
 ];
 
