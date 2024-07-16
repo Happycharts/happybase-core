@@ -1,5 +1,7 @@
-## 😜 Happybase: Collaborative data for normies
-![Happybase](./public/sqlfornormies.png)
+## 😜 Happybase: Collaborative SQL documents for data teams
+![Happybase](./public/header.png)
+
+*"Happybase stands firmly with the people of Occupied Palestine, as we have from the beginning. We are a community of technologists, designers, and developers who are committed to using our skills and talents to create a better world for all. 🇵🇸🇵🇸🇵🇸"*
 
 Welcome to Happybase, a SQL collaboration platform with a notion-like interface to provide seamless integration with your data sources and powerful generative AI capabilities (soon). This README will dive into the architecture, key components, and routes of Happybase.
 
@@ -49,7 +51,7 @@ This API route handles the addition of new data sources to the user's dashboard.
 
 #### `/api/sources/get/`
 
-This API route manages the fetching of sources from Supabase in a multi-tenance fashion based on the organization ID.
+This API route manages the fetching of sources from Supabase in a multi-tenant fashion based on the organization ID.
 
 #### `/api/documents/add/`
 
