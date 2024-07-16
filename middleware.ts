@@ -28,7 +28,7 @@ const allowedRoutes = [
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://main--relaxed-lollipop-577475.netlify.app/'
+  'https://app.happybase.co'
   // Add other allowed origins as needed
 ];
 

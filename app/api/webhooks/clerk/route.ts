@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Webhook } from 'svix';
 import { WebhookEvent } from '@clerk/nextjs/server';
+import { createClient } from '@/app/utils/supabase/server';
+import { auth } from '@clerk/nextjs/server';
 
 const webhookSecret = process.env.CLERK_WEBHOOK_SECRET!;
+const supabase = createClient();
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -34,30 +37,67 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: errorMessage }, { status: 400 });
   }
 
-  // Handle the event
-  switch (event.type) {
-    case 'user.created':
-      const user = event.data;
-      console.log(`User created: ${user.id}`);
-      // Handle user creation
-      // await handleUserCreated(user);
-      break;
-    case 'user.updated':
-      const updatedUser = event.data;
-      console.log(`User updated: ${updatedUser.id}`);
-      // Handle user update
-      // await handleUserUpdated(updatedUser);
-      break;
-    case 'organization.created':
-      const organization = event.data;
-      console.log(`Organization created: ${organization.id}`);
-      // Handle organization creation
-      // await handleOrganizationCreated(organization);
-      break;
-    // Add more cases as needed
-    default:
-      console.log(`Unhandled event type ${event.type}`);
+// Handle the event
+switch (event.type) {
+  case 'user.created':
+    const user = event.data;
+    console.log(`User created: ${user.id}`);
+    // Handle user creation
+    await handleUserCreated(user, supabase);
+    break;
+  case 'organization.created':
+    const organization = event.data;
+    console.log(`Organization created: ${organization.id}`);
+    // Handle organization creation
+    await handleOrganizationCreated(organization, supabase);
+    break;
+  // Add more cases as needed
+  default:
+    console.log(`Unhandled event type ${event.type}`);
+}
+
+async function handleUserCreated(user: any, supabase: any) {
+  const { has } = auth();
+  const isAdmin = has({ role: "role:admin" });
+
+  try {
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .upsert({
+        id: user.id,
+        first_name: user.firstName,
+        last_name: user.lastName,
+        email: user.primaryEmailAddress?.emailAddress,
+        organization: user.orgName,
+        admin: isAdmin,
+      },
+    { onConflict: 'id' });
+
+    if (userError) throw userError;
+
+    console.log('User upserted successfully:', userData);
+  } catch (error: unknown) {
+    console.error('Error upserting user:', error);
   }
+}
+
+async function handleOrganizationCreated(organization: any, supabase: any) {
+  try {
+    const { data: orgData, error: orgError } = await supabase
+      .from('organizations')
+      .upsert({
+        id: organization.id,
+        name: organization.orgName,
+      },
+    { onConflict: 'id' });
+
+    if (orgError) throw orgError;
+
+    console.log('Organization upserted successfully:', orgData);
+  } catch (error: unknown) {
+    console.error('Error upserting organization:', error);
+  }
+}
 
   // Return a 200 response to acknowledge receipt of the event
   return NextResponse.json({}, { status: 200 });

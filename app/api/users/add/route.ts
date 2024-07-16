@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/app/utils/supabase/server';
+import { auth } from '@clerk/nextjs/server';
 
-interface UpsertData {
+interface InsertData {
   user: {
     id: string;
     firstName: string;
@@ -10,6 +11,7 @@ interface UpsertData {
       emailAddress: string;
     };
     orgName: string;
+    admin: boolean;
   };
   orgId: string;
   orgName: string;
@@ -17,34 +19,39 @@ interface UpsertData {
 
 export async function POST(request: NextRequest) {
   const supabase = createClient();
-
+  const { has } = auth();
+  const isAdmin = has({ role: "role:admin" });
+  if (!isAdmin) {
+    const admin = false;
+  } else {
+    const admin = true;
+  }
   try {
-    const { user, orgId, orgName } = (await request.json()) as UpsertData;
+    const { user, orgId, orgName } = (await request.json()) as InsertData;
 
-    // Upsert user
+    // Insert user
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .upsert({
+      .insert({
         id: user.id,
         first_name: user.firstName,
         last_name: user.lastName,
         email: user.primaryEmailAddress?.emailAddress,
         organization: orgName,
-      }, {
-        onConflict: 'id'
-      });
+        admin: isAdmin,
+      }, 
+    );
 
     if (userError) throw userError;
 
-    // Upsert organization
+    // Insert organization
     const { data: orgData, error: orgError } = await supabase
       .from('organizations')
-      .upsert({
+      .insert({
         id: orgId,
         name: orgName,
-      }, {
-        onConflict: 'id'
-      });
+      },
+    );
 
     if (orgError) throw orgError;
 
