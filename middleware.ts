@@ -5,7 +5,12 @@ import cors from 'cors';
 
 const isPublicRoute = createRouteMatcher([
   '/auth',     // This matches exactly '/auth'
-  '/auth/(.*)'  // This matches '/auth/' and any path under it
+  '/auth/(.*)',  // This matches '/auth/' and any path under it
+  '/pricing',
+  '/privacy',
+  '/terms',
+  '/landing',
+  '/api/(.*)',
 ]);
 
 const allowedRoutes = [
@@ -14,12 +19,16 @@ const allowedRoutes = [
   '/sources',
   '/users',
   '/api',
-  '/auth'
+  '/auth',
+  '/terms',
+  '/privacy',
+  '/landing',
+  '/pricing',
 ];
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://your-production-domain.com'
+  'https://main--relaxed-lollipop-577475.netlify.app/'
   // Add other allowed origins as needed
 ];
 

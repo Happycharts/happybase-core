@@ -1,7 +1,7 @@
 ## 😜 Happybase: Collaborative data for normies
 ![Happybase](./public/sqlfornormies.png)
 
-Welcome to Happybase, a powerful yet user-friendly platform designed to help users create generative BI dashboards with ease. Happybase leverages a notion-like interfact to provide seamless integration with your data sources and powerful generative AI capabilities (soon). This README will dive into the architecture, key components, and routes of Happybase.
+Welcome to Happybase, a SQL collaboration platform with a notion-like interface to provide seamless integration with your data sources and powerful generative AI capabilities (soon). This README will dive into the architecture, key components, and routes of Happybase.
 
 ### 📐 Architecture
 
@@ -29,7 +29,7 @@ Happybase has several key routes for managing data sources and viewing dashboard
 
 #### `/dashboard/sources/`
 
-This route allows users to add new data sources to their dashboard. Users can connect various data sources using Vercel AI's generative capabilities.
+This route allows users to add new data sources to their dashboard. Users can connect various data sources including Semantic Layers such as Cube.
 
 #### `/dashboard/home`
 
