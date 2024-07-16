@@ -20,6 +20,8 @@ import { handleImageDrop, handleImagePaste } from "novel/plugins";
 import { uploadFn } from "./image-upload";
 import { Separator } from "../ui/separator";
 import { useSlashCommand } from "@/components/editor/slash-command"; // Import the new hook
+import { useParams, useRouter } from 'next/navigation'
+import { useLiveStateData, useSetLiveStateData, useLiveState} from '@veltdev/react';
 
 interface EditorProp {
   initialValue?: JSONContent;
@@ -30,9 +32,20 @@ const Editor = ({ initialValue, onChange }: EditorProp) => {
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
+  const router = useRouter();
+  const params = useParams<{ ksuid: string; }>()
+  const [currentDocumentId, setCurrentDocumentId] = useState<string | null>(null);
+  const ksuid = params.ksuid;
+
+  const liveStateDataId = ksuid;
+  const initialLiveStateData = { content: {} };
+  const [editorContent, setEditorContent] = useLiveState(liveStateDataId, initialLiveStateData);
 
   const { slashCommand, suggestionItems } = useSlashCommand(); // Use the new hook
 
+  
+  useSetLiveStateData(liveStateDataId, initialLiveStateData);
+  
   const extensions = useMemo(() => [...defaultExtensions, slashCommand], [slashCommand]);
 
   return (
@@ -53,7 +66,9 @@ const Editor = ({ initialValue, onChange }: EditorProp) => {
           },
         }}
         onUpdate={({ editor }) => {
-          onChange(editor.getJSON());
+          const jsonContent = editor.getJSON();
+          onChange(jsonContent);
+          setEditorContent({ content: jsonContent });
         }}
         slotAfter={<ImageResizer />}
       >

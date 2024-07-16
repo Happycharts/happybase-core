@@ -112,18 +112,26 @@ export function SQLEditor() {
       try {
         const response = await fetch('/api/sources/get');
         if (!response.ok) {
-          throw new Error('Failed to fetch sources');
+          throw new Error(`Failed to fetch sources: ${response.status} ${response.statusText}`);
         }
         const { data } = await response.json();
+        console.log('Fetched sources:', data); // Add this line
         setSources(data);
       } catch (error) {
         console.error('Error fetching sources:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch sources. Please try again.",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
     };
     fetchSources();
   }, []);
+
+  
 
   const runQuery = async () => {
     if (!selectedSource) {
@@ -216,10 +224,10 @@ export function SQLEditor() {
             </SelectContent>
           </Select>
           <Button className="bg-black text-white hover:bg-primary" onClick={runQuery}>Run Query</Button>
+          <VeltPresence />
           </div>
         <ResultsArea queryResult={queryResult} />
       </Box>
-      <VeltPresence />
     </div>
   );
 }
