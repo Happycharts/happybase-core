@@ -28,9 +28,18 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    // Initialize Kubernetes client
+    // Get the KUBECONFIG_BASE64 from environment variables
+    const kubeConfigBase64 = process.env.KUBECONFIG_BASE64;
+    if (!kubeConfigBase64) {
+      throw new Error('KUBECONFIG_BASE64 environment variable is not set');
+    }
+
+    // Decode the base64-encoded KUBECONFIG
+    const kubeConfigContent = Buffer.from(kubeConfigBase64, 'base64').toString('utf-8');
+
+    // Initialize Kubernetes client with the decoded KUBECONFIG
     const kc = new k8s.KubeConfig();
-    kc.loadFromDefault();
+    kc.loadFromString(kubeConfigContent);
     const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
     const namespace = `trino-${orgId}`;
@@ -53,47 +62,46 @@ export async function POST(req: NextRequest) {
       await k8sApi.readNamespacedConfigMap(configMapName, namespace);
       await k8sApi.replaceNamespacedConfigMap(configMapName, namespace, configMap);
     } catch (error: unknown) {
-        console.error('Error applying Trino connector configuration:', error);
-        if (error instanceof Error) {
-          return NextResponse.json({ error: error.message }, { status: 500 });
-        } else {
-          return NextResponse.json({ error: 'An unknown error occurred' }, { status: 500 });
-        }
+      if (error instanceof k8s.HttpError && error.response?.statusCode === 404) {
+        await k8sApi.createNamespacedConfigMap(namespace, configMap);
+      } else {
+        throw error;
       }
+    }
 
-      const appsV1Api = kc.makeApiClient(k8s.AppsV1Api);
-      const deployments = await appsV1Api.listNamespacedDeployment(namespace);
-      if (!deployments.body.items) {
-        return NextResponse.json({ error: 'No Trino deployments found' }, { status: 404 });
-      }
-      for (const deployment of deployments.body.items) {
-        if (deployment.metadata?.name && deployment.metadata.name.includes('trino')) {
-          const patch = {
-            spec: {
-              template: {
-                metadata: {
-                  annotations: {
-                    'kubectl.kubernetes.io/restartedAt': new Date().toISOString(),
-                  },
+    const appsV1Api = kc.makeApiClient(k8s.AppsV1Api);
+    const deployments = await appsV1Api.listNamespacedDeployment(namespace);
+    if (!deployments.body.items) {
+      return NextResponse.json({ error: 'No Trino deployments found' }, { status: 404 });
+    }
+    for (const deployment of deployments.body.items) {
+      if (deployment.metadata?.name && deployment.metadata.name.includes('trino')) {
+        const patch = {
+          spec: {
+            template: {
+              metadata: {
+                annotations: {
+                  'kubectl.kubernetes.io/restartedAt': new Date().toISOString(),
                 },
               },
             },
-          };
-          await appsV1Api.patchNamespacedDeployment(
-            deployment.metadata.name,
-            namespace,
-            patch,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            {
-              headers: { 'Content-Type': 'application/strategic-merge-patch+json' }
-            }
-          );
-        }
+          },
+        };
+        await appsV1Api.patchNamespacedDeployment(
+          deployment.metadata.name,
+          namespace,
+          patch,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          {
+            headers: { 'Content-Type': 'application/strategic-merge-patch+json' }
+          }
+        );
       }
+    }
 
     return NextResponse.json({ message: 'Connector configuration applied successfully' });
   } catch (error: unknown) {
