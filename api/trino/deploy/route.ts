@@ -1,14 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
 import * as k8s from '@kubernetes/client-node';
 import { execSync } from 'child_process';
 
-export async function POST(request: NextRequest) {
-  const { userId, orgId } = getAuth(request);
-
-  if (!userId || !orgId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+export async function deployTrino(orgId: string) {
 
   try {
     // Get the KUBECONFIG_BASE64 from environment variables
@@ -32,13 +25,13 @@ export async function POST(request: NextRequest) {
     // Deploy Trino using Helm
     deployTrinoWithHelm(namespace);
 
-    return NextResponse.json({ message: 'Trino deployed successfully', namespace }, { status: 200 });
+    return { message: 'Trino deployed successfully', namespace };
   } catch (error: unknown) {
     console.error('Error deploying Trino:', error);
     if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      throw new Error(error.message);
     } else {
-      return NextResponse.json({ error: 'An unknown error occurred' }, { status: 500 });
+      throw new Error('An unknown error occurred');
     }
   }
 }

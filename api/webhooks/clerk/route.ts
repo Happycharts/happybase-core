@@ -4,7 +4,7 @@ import { WebhookEvent } from '@clerk/nextjs/server';
 import { createClient } from '@/app/utils/supabase/server';
 import Stripe from 'stripe';
 import { clerkClient } from "@clerk/nextjs/server";
-
+import { deployTrino } from '@/api/trino/deploy/route';
 const webhookSecret = process.env.CLERK_WEBHOOK_SECRET!;
 
 export async function POST(request: NextRequest) {
@@ -94,24 +94,13 @@ export async function POST(request: NextRequest) {
         // You need to call createStripeCustomer here with the correct parameters
         // await createStripeCustomer(name, email);
   
-        // New functionality: Call /api/trino/deploy with orgId
-        try {
-          const deployResponse = await fetch(`/api/trino/deploy`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ orgId: organization.id }),
-          });
-  
-          if (!deployResponse.ok) {
-            throw new Error(`Failed to deploy Trino: ${deployResponse.statusText}`);
-          }
-  
-          console.log(`Trino deployment initiated for organization: ${organization.id}`);
-        } catch (error) {
-          console.error('Error deploying Trino:', error);
-        }
+      // Deploy Trino
+      try {
+        const deployResult = await deployTrino(organization.id);
+        console.log(`Trino deployment result:`, deployResult);
+      } catch (error) {
+        console.error('Error deploying Trino:', error);
+      }
       // You need to call createStripeCustomer here with the correct parameters
       // await createStripeCustomer(name, email);
       break;
