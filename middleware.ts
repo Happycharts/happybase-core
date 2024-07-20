@@ -32,7 +32,6 @@ const allowedRoutes = [
 const allowedOrigins = [
   'http://localhost:3000',
   'https://app.happybase.co'
-  ''
   // Add other allowed origins as needed
 ];
 
