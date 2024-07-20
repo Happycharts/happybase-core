@@ -65,7 +65,7 @@ export default function SchemasPage() {
     if (!organization?.id || !sourceToDelete) return;
 
     try {
-      const response = await fetch(`/api/sources/delete?id=${sourceToDelete}`, {
+      const response = await fetch(`~/api/sources/warehouses/delete?id=${sourceToDelete}`, {
         method: 'DELETE',
       });
 

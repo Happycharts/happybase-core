@@ -14,12 +14,16 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 const allowedRoutes = [
-  '/documents',
+  '/editor',
   '/home',
   '/sources',
   '/users',
   '/api',
+  '/query',
   '/auth',
+  '/local/',
+  '/local/editor',
+  '/warehouses/',
   '/terms',
   '/privacy',
   '/pricing',

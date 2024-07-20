@@ -50,12 +50,12 @@ export default function AddSourcePage() {
       credentials[key] = value.toString();
     });
 
-    const response = await fetch(`/api/sources/add`, {
+    const response = await fetch(`~/api/warehouses/add`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ type: sourceName.toLowerCase(), credentials }),
+      body: JSON.stringify({ type: sourceName.toLowerCase(), credentials, icon: sources.find(s => s.name === sourceName)?.iconSrc }),
     });
     if (response.ok) {
       toast({

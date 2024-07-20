@@ -9,7 +9,11 @@ import {
     AreaChart,
     Cuboid,
     House,
-    TextSearch
+    TextSearch,
+    RadioTower,
+    ArrowDownUp,
+    MapPinned,
+    Database
   } from "lucide-react";
 
 import {
@@ -52,29 +56,36 @@ import {
             submenus: []
           },
           {
-            href: "/documents",
-            label: "Documents",
-            active: pathname.includes("/documents"),
-            icon: TextSearch,
+            href: "/query",
+            label: "Query Tool",
+            active: pathname.includes("/query"),
+            icon: Braces,
             submenus: []
           },
           {
-            href: "/sources",
-            label: "Sources",
-            active: pathname.includes("/sources"),
-            icon: Braces,
+            href: "/connectors",
+            label: "Connectors",
+            active: pathname.includes("/connectors"),
+            icon: Database,
             submenus: [
               {
-                href: "/sources",
-                label: "Manage Sources",
-                active: pathname.includes("/sources"),
+                href: "/warehouses",
+                label: "Manage Connections",
+                active: pathname.includes("/warehouses"),
               },
               {
-                href: "/sources/add",
-                label: "Add Sources",
-                active: pathname.includes("/sources/add"),
+                href: "/warehouses/add",
+                label: "Add Connections",
+                active: pathname.includes("/warehouses/add"),
               },
             ]
+          },
+          {
+            href: "/broadcasts",
+            label: "Broadcasts",
+            active: pathname.includes("/broadcasts"),
+            icon: RadioTower,
+            submenus: []
           },
         ]
       },
