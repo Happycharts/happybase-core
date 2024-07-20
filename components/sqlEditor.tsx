@@ -29,7 +29,6 @@ import { ResultsArea } from "@/components/resultsArea";
 import { Box } from './ui/box';
 import { Input } from "@/components/ui/input";
 import { File, Folder, Tree } from "@/components/ui/file-tree";
-import * as duckdb from '@duckdb/duckdb-wasm';
 
 export const basicSetup: Extension = (() => [
   lineNumbers(),
@@ -100,12 +99,9 @@ interface Warehouse {
   credentials: any;
 }
 
-const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 
 export function SQLEditor() {
   const [pastQueries, setPastQueries] = useState<string[]>([]);
-  const [db, setDb] = useState<duckdb.AsyncDuckDB | null>(null);
-  const [conn, setConn] = useState<duckdb.AsyncDuckDBConnection | null>(null);
   const [queryResult, setQueryResult] = useState<any | null>(null);
   const [query, setQuery] = useState(code);  // Initialize with 'code'
   const [localFiles, setLocalFiles] = useState<File[]>([]);
