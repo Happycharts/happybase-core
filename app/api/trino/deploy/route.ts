@@ -11,9 +11,18 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Initialize Kubernetes client
+    // Get the KUBECONFIG_BASE64 from environment variables
+    const kubeConfigBase64 = process.env.KUBECONFIG_BASE64;
+    if (!kubeConfigBase64) {
+      throw new Error('KUBECONFIG_BASE64 environment variable is not set');
+    }
+
+    // Decode the base64-encoded KUBECONFIG
+    const kubeConfigContent = Buffer.from(kubeConfigBase64, 'base64').toString('utf-8');
+
+    // Initialize Kubernetes client with the decoded KUBECONFIG
     const kc = new k8s.KubeConfig();
-    kc.loadFromDefault();
+    kc.loadFromString(kubeConfigContent);
     const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
     // Create namespace based on Clerk organization ID
