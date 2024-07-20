@@ -61,36 +61,57 @@ export async function POST(request: NextRequest) {
       // Handle user update
       // await handleUserUpdated(updatedUser);
       break;
-    case 'organization.created':
-      const organization = event.data;
-      console.log(`Organization created: ${organization.id}`);
-      const { name, members_count, slug } = organization;
-
-      async function insertOrganization(): Promise<void> {
-        await supabase.from('organizations').insert([
-          {name, members_count, slug},
-        ]);
-      }
-      await insertOrganization();  
-      
-      async function createStripeCustomer(name: string, email: string): Promise<void> {
-        try {
-          const customer = await stripe.customers.create({
-            name,
-            email: email
-          });
-          const { stripeId, userId } = await request.json();
-          await supabase.from('users').update({ stripeId: customer.id }).match({ email: email });
-          await clerkClient.users.updateUserMetadata(userId, {
-            privateMetadata: {
-              stripeId: customer.id
-            }
-          });
-          console.log(`Customer created in Stripe: ${customer.id}`);
-        } catch (error) {
-          console.error('Error creating customer in Stripe:', error);
+      case 'organization.created':
+        const organization = event.data;
+        console.log(`Organization created: ${organization.id}`);
+        const { name, members_count, slug } = organization;
+  
+        async function insertOrganization(): Promise<void> {
+          await supabase.from('organizations').insert([
+            {name, members_count, slug},
+          ]);
         }
-      }    
+        await insertOrganization();  
+        
+        async function createStripeCustomer(name: string, email: string): Promise<void> {
+          try {
+            const customer = await stripe.customers.create({
+              name,
+              email: email
+            });
+            const { stripeId, userId } = await request.json();
+            await supabase.from('users').update({ stripeId: customer.id }).match({ email: email });
+            await clerkClient.users.updateUserMetadata(userId, {
+              privateMetadata: {
+                stripeId: customer.id
+              }
+            });
+            console.log(`Customer created in Stripe: ${customer.id}`);
+          } catch (error) {
+            console.error('Error creating customer in Stripe:', error);
+          }
+        }    
+        // You need to call createStripeCustomer here with the correct parameters
+        // await createStripeCustomer(name, email);
+  
+        // New functionality: Call /api/trino/deploy with orgId
+        try {
+          const deployResponse = await fetch(`/api/trino/deploy`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ orgId: organization.id }),
+          });
+  
+          if (!deployResponse.ok) {
+            throw new Error(`Failed to deploy Trino: ${deployResponse.statusText}`);
+          }
+  
+          console.log(`Trino deployment initiated for organization: ${organization.id}`);
+        } catch (error) {
+          console.error('Error deploying Trino:', error);
+        }
       // You need to call createStripeCustomer here with the correct parameters
       // await createStripeCustomer(name, email);
       break;

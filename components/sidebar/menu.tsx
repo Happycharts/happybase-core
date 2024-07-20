@@ -57,7 +57,12 @@ export function Menu({ isOpen }: MenuProps) {
           }}
         />
       </div>
-      <ul className="flex flex-col items-start space-y-1 px-2 flex-grow">
+      <div className={cn(
+        "px-2",
+        isOpen === false ? "flex justify-center" : ""
+      )}>
+      </div>
+      <ul className="flex flex-col items-start space-y-1 px-2 flex-grow mt-6">
         {menuList.map(({ groupLabel, menus }, index) => (
           <li className={cn("w-full", groupLabel ? "pt-5" : "")} key={index}>
             {(isOpen && groupLabel) || isOpen === undefined ? (
