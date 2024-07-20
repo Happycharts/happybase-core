@@ -81,7 +81,6 @@
     "@veltdev/react": "^2.0.4",
     "ai": "^3.2.19",
     "aws-sdk": "^2.1659.0",
-    "chdb": "^1.1.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
