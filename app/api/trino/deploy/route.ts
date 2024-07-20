@@ -1,17 +1,13 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import * as k8s from '@kubernetes/client-node';
 import { execSync } from 'child_process';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
-
-  const { userId, orgId } = getAuth(req);
+export async function POST(request: NextRequest) {
+  const { userId, orgId } = getAuth(request);
 
   if (!userId || !orgId) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
@@ -27,13 +23,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Deploy Trino using Helm
     deployTrinoWithHelm(namespace);
 
-    return res.status(200).json({ message: 'Trino deployed successfully', namespace });
+    return NextResponse.json({ message: 'Trino deployed successfully', namespace }, { status: 200 });
   } catch (error: unknown) {
     console.error('Error deploying Trino:', error);
     if (error instanceof Error) {
-      return res.status(500).json({ error: error.message });
+      return NextResponse.json({ error: error.message }, { status: 500 });
     } else {
-      return res.status(500).json({ error: 'An unknown error occurred' });
+      return NextResponse.json({ error: 'An unknown error occurred' }, { status: 500 });
     }
   }
 }
