@@ -14,20 +14,14 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 const allowedRoutes = [
-  '/editor',
   '/home',
-  '/sources',
   '/users',
-  '/catalogs',
   '/api',
   '/query',
   '/auth',
-  '/local/',
-  '/local/editor',
-  '/warehouses/',
+  '/connectors',
   '/terms',
   '/privacy',
-  '/pricing',
 ];
 
 const allowedOrigins = [

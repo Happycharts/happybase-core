@@ -69,14 +69,14 @@ import {
             icon: Database,
             submenus: [
               {
-                href: "/warehouses",
-                label: "Manage Connections",
-                active: pathname.includes("/warehouses"),
+                href: "/connectors/",
+                label: "Manage Connectors",
+                active: pathname.includes("/connectors"),
               },
               {
-                href: "/warehouses/add",
-                label: "Add Connections",
-                active: pathname.includes("/warehouses/add"),
+                href: "/connectors/add",
+                label: "Add Connectors",
+                active: pathname.includes("/connectors/add"),
               },
             ]
           },
