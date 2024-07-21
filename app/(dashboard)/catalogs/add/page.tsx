@@ -10,6 +10,7 @@ import { Toast } from '@/components/ui/toast'
 import { useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { CatalogConfig, CatalogProperty } from '@/app/types/catalog';
+import { useOrganization } from "@clerk/nextjs";
 
 const sources = [
   {
@@ -61,6 +62,8 @@ interface DialogState {
 export default function AddCatalogPage() {
   const { toast } = useToast()
   const [openDialogs, setOpenDialogs] = useState<DialogState>({})
+  const org = useOrganization().organization?.id;
+  
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, catalogName: string) => {
     e.preventDefault();
@@ -97,6 +100,7 @@ export default function AddCatalogPage() {
         body: JSON.stringify({
           catalogConfig,
           secretData: credentials,
+          namespace: `trino-${org}`, // You might want to make this configurable
         }),
       });
   

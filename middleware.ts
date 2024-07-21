@@ -22,7 +22,6 @@ const allowedRoutes = [
   '/connectors',
   '/terms',
   '/privacy',
-  '/pricing',
 ];
 
 const allowedOrigins = [
