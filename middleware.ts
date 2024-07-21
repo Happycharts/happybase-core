@@ -18,6 +18,7 @@ const allowedRoutes = [
   '/home',
   '/sources',
   '/users',
+  '/catalogs',
   '/api',
   '/query',
   '/auth',

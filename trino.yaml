@@ -1,0 +1,21 @@
+---
+apiVersion: trino.stackable.tech/v1alpha1
+kind: TrinoCluster
+metadata:
+  name: happybase-trino
+spec:
+  image:
+    productVersion: "442"
+  clusterConfig:
+    catalogLabelSelector:
+      matchLabels:
+        trino: happybase-trino
+    listenerClass: external-unstable
+  coordinators:
+    roleGroups:
+      default:
+        replicas: 1
+  workers:
+    roleGroups:
+      default:
+        replicas: 1
