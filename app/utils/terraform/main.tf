@@ -54,10 +54,9 @@ module "project-services" {
   source  = "terraform-google-modules/project-factory/google//modules/project_services"
   version = "~> 15.0"
 
-  project_id                  = module.project-factory.project_id
+  project_id                  = var.project_id
   enable_apis                 = true
-  disable_services_on_destroy = true
-
+  disable_services_on_destroy = false
   activate_apis = [
     "cloudbilling.googleapis.com",
     "container.googleapis.com",
@@ -73,6 +72,23 @@ module "project-services" {
     "dns.googleapis.com",
     "sqladmin.googleapis.com",
     "cloudrun.googleapis.com"
+  ]
+
+  activate_api_identities = [
+    {
+      api = "container.googleapis.com"
+      roles = [
+        "roles/container.serviceAgent",
+        "roles/container.developer"
+      ]
+    },
+    {
+      api = "compute.googleapis.com"
+      roles = [
+        "roles/compute.serviceAgent",
+        "roles/compute.networkAdmin"
+      ]
+    }
   ]
 }
 
