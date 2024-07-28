@@ -68,6 +68,9 @@ dependencies:
   '@pulumi/eks':
     specifier: ^2.7.5
     version: 2.7.5(@types/node@20.14.11)(typescript@5.5.3)
+  '@pulumi/google-native':
+    specifier: ^0.32.0
+    version: 0.32.0(typescript@5.5.3)
   '@pulumi/kubernetes':
     specifier: ^4.15.0
     version: 4.15.0(typescript@5.5.3)
@@ -4459,6 +4462,18 @@ packages:
       - bluebird
       - encoding
       - node-notifier
+      - supports-color
+      - ts-node
+      - typescript
+    dev: false
+
+  /@pulumi/google-native@0.32.0(typescript@5.5.3):
+    resolution: {integrity: sha512-7PJrCGHhmN/WnscNoImQtJPd1y817F/678KcgT8JhtTo4Af5enFpKXbQP4owoA9ngoJ4s+0lopBJHDbQi528Zw==}
+    requiresBuild: true
+    dependencies:
+      '@pulumi/pulumi': 3.125.0(typescript@5.5.3)
+    transitivePeerDependencies:
+      - bluebird
       - supports-color
       - ts-node
       - typescript

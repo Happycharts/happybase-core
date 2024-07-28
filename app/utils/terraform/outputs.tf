@@ -1,27 +1,9 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
-output "region" {
-  value       = var.region
-  description = "GCloud Region"
+output "project_info_example" {
+  value       = module.project-factory.project_id
+  description = "The ID of the created project"
 }
 
-output "zone" {
-  value       = var.zone
-  description = "GCloud Region"
-}
-
-output "project_id" {
-  value       = var.project_id
-  description = "GCloud Project ID"
-}
-
-output "kubernetes_cluster_name" {
-  value       = google_container_cluster.primary.name
-  description = "GKE Cluster Name"
-}
-
-output "kubernetes_cluster_host" {
-  value       = google_container_cluster.primary.endpoint
-  description = "GKE Cluster Host"
+output "domain_example" {
+  value       = module.project-factory.domain
+  description = "The organization's domain"
 }
