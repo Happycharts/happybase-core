@@ -65,16 +65,29 @@ module "project-services" {
 }
 
 module "network" {
-  source  = "terraform-google-modules/network/google"
-  version = "~> 9.1"
-  project_id = module.project-factory.project_id
+  source       = "terraform-google-modules/network/google//examples/basic_auto_mode"
+  version      = "9.1.0"
+  project_id   = module.project-factory.project_id
   network_name = var.network_name
   subnets = [
-    "${var.environment}-app-${var.region}-a",
-    "${var.environment}-backend-${var.region}-b",
-    "${var.environment}-db-${var.region}-c"
+    {
+      subnet_name   = "${var.environment}-app-${var.region}-a"
+      subnet_ip     = "10.0.1.0/24"
+      subnet_region = var.region
+    },
+    {
+      subnet_name   = "${var.environment}-backend-${var.region}-b"
+      subnet_ip     = "10.0.2.0/24"
+      subnet_region = var.region
+    },
+    {
+      subnet_name   = "${var.environment}-db-${var.region}-c"
+      subnet_ip     = "10.0.3.0/24"
+      subnet_region = var.region
+    }
   ]
 }
+
 
 module "project-factory" {
   source  = "terraform-google-modules/project-factory/google"
