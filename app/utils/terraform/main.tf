@@ -25,6 +25,7 @@ module "project-services" {
   project_id                  = var.project_id
   enable_apis                 = var.enable
   disable_services_on_destroy = true
+  disable_dependent_services = false
 
   activate_api_identities = [{
     api = "container.googleapis.com"
