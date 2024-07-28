@@ -115,7 +115,7 @@ module "gke" {
   name                              = "${local.cluster_type}-cluster${var.cluster_name_suffix}"
   region                            = var.region
   network                           = module.network.network_name
-  subnetwork                        = module.network
+  subnetwork                        = module.network.subnets_names[0]
   ip_range_pods                     = module.network.subnets_ips["${var.environment}-app-${var.region}-a-pods"]
   ip_range_services                 = module.network.subnets_ips["${var.environment}-app-${var.region}-a-services"]
   create_service_account            = true
