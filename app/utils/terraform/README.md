@@ -1,6 +1,6 @@
 # terraform-gke-trino
 
-This is what we call a "provisioner" module, in that it declaritively handles the deployment of not only the low level compute needed to run a GKE instance, but also handles a large portion of the administrative tasks involved with provisioning Projects, Service Accounts, and VPCs.
+This module handles the deployment of not only the low level compute needed to run a GKE instance, but also handles a large portion of the administrative tasks involved with provisioning Projects, Service Accounts, and VPCs.
 
 The end result is a fully provisioned GKE cluster with Trino installed and ready to go, with autoscaling and a NodePort service for the Trino UI.
 
