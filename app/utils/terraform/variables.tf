@@ -23,15 +23,7 @@ variable "network_name" {
   type = string
 }
 
-variable "subnet_a" {
-  type = string
-}
-
-variable "subnet_b" {
-  type = string
-}
-
-variable "subnet_c" {
+variable "environment" {
   type = string
 }
 
@@ -42,11 +34,6 @@ variable "region" {
 
 variable "cluster_name_suffix" {
   description = "A suffix to append to the default cluster name"
-  default     = ""
-}
-
-variable "compute_engine_service_account" {
-  description = "Service account to associate to the nodes in the cluster"
 }
 
 variable "cluster_autoscaling" {
