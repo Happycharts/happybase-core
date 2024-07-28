@@ -49,6 +49,7 @@ locals {
 }
 
 data "google_client_config" "default" {}
+
 module "project-services" {
   source  = "terraform-google-modules/project-factory/google//modules/project_services"
   version = "~> 15.0"
@@ -57,13 +58,22 @@ module "project-services" {
   enable_apis                 = true
   disable_services_on_destroy = true
 
-  activate_api_identities = [{
-    api = "container.googleapis.com"
-    roles = [
-      "roles/servviceusage.serviceUsageConsumer",
-      "roles/container.clusterAdmin",
-    ]
-  }]
+  activate_apis = [
+    "cloudbilling.googleapis.com",
+    "container.googleapis.com",
+    "compute.googleapis.com",
+    "iam.googleapis.com",
+    "logging.googleapis.com",
+    "monitoring.googleapis.com",
+    "storage-api.googleapis.com",
+    "servicenetworking.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "serviceusage.googleapis.com",
+    "cloudkms.googleapis.com",
+    "dns.googleapis.com",
+    "sqladmin.googleapis.com",
+    "cloudrun.googleapis.com"
+  ]
 }
 
 module "network" {
