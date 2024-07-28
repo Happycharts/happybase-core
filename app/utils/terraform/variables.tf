@@ -29,7 +29,6 @@ variable "environment" {
 
 variable "region" {
   type = string
-  sensitive = true
 }
 
 variable "cluster_name_suffix" {
