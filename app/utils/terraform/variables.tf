@@ -24,10 +24,6 @@ variable "region" {
   sensitive = true
 }
 
-variable "kube_config_content" {
-  type = string
-}
-
 variable "cluster_name_suffix" {
   description = "A suffix to append to the default cluster name"
   default     = ""
