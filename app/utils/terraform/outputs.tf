@@ -27,9 +27,3 @@ output "service_account" {
   description = "The default service account used for running nodes."
   value       = module.gke.service_account
 }
-
-output "kube_config_content" {
-  sensitive = true
-  value     = module.gke.kube_config_content
-  description = "The kubeconfig content for the cluster."
-}
