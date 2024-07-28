@@ -23,7 +23,6 @@ module "project-services" {
   version = "~> 15.0"
 
   project_id                  = var.project_id
-  enable_apis                 = var.enable
   disable_services_on_destroy = true
 
   activate_api_identities = [{

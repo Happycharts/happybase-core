@@ -2,11 +2,6 @@ variable "project_id" {
   description = "The GCP project you want to enable APIs on"
 }
 
-variable "enable" {
-  description = "Actually enable the APIs listed"
-  default     = true
-}
-
 variable "organization_id" {
   description = "The organization id for the associated services"
 }
@@ -18,4 +13,3 @@ variable "billing_account" {
 variable "project_name" {
   description = "The name of the project you want to create"
 }
-
