@@ -32,7 +32,7 @@ provider "kubernetes" {
 
 provider "helm" {
   kubernetes {
-    config_path = var.kube_config_content
+    config_path = module.gke.kube_config_content
   }
 }
 
@@ -202,13 +202,13 @@ module "gke" {
 }
 
 resource "helm_release" "nginx_ingress" {
-  name       = "nginx-ingress-controller"
+  name       = "trino-helm"
 
-  repository = "https://charts.bitnami.com/bitnami"
-  chart      = "nginx-ingress-controller"
+  repository = "https://trinodb.github.io/charts"
+  chart      = "trino"
 
   set {
     name  = "service.type"
-    value = "ClusterIP"
+    value = "NodePort"
   }
 }
