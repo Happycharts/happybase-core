@@ -69,7 +69,11 @@ module "network" {
   version = "9.1.0"
   project_id = module.project-factory.project_id
   network_name = var.network_name
-  subnets = ["${var.subnet_a}-a", "${var.subnet_b}-b", "${var.subnet_c}-c"]
+  subnets = [
+    "${var.environment}-app-${var.region}-a",
+    "${var.environment}-backend-${var.region}-b",
+    "${var.environment}-db-${var.region}-c"
+  ]
 }
 
 module "project-factory" {
@@ -100,8 +104,8 @@ module "gke" {
   region                            = var.region
   network                           = module.network.network_name
   subnetwork                        = module.network
-  ip_range_pods                     = module.network.subnets_ips["${var.subnet_a}-a-pods"]
-  ip_range_services                 = module.network.subnets_ips["${var.subnet_a}-a-services"]
+  ip_range_pods                     = module.network.subnets_ips["${var.environment}-app-${var.region}-a-pods"]
+  ip_range_services                 = module.network.subnets_ips["${var.environment}-app-${var.region}-a-services"]
   create_service_account            = true
   remove_default_node_pool          = false
   disable_legacy_metadata_endpoints = false
