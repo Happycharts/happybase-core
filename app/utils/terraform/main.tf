@@ -51,7 +51,7 @@ module "project-services" {
   source  = "terraform-google-modules/project-factory/google//modules/project_services"
   version = "~> 15.0"
 
-  project_id                  = var.project_id
+  project_id                  = module.project-factory.project_id
   enable_apis                 = true
   disable_services_on_destroy = true
 
@@ -64,6 +64,13 @@ module "project-services" {
   }]
 }
 
+module "network" {
+  source  = "terraform-google-modules/network/google//examples/basic_auto_mode"
+  version = "9.1.0"
+  project_id = module.project-factory.project_id
+  network_name = var.network_name
+  subnets = ["${var.subnet_a}-a", "${var.subnet_b}-b", "${var.subnet_c}-c"]
+}
 
 module "project-factory" {
   source  = "terraform-google-modules/project-factory/google"
@@ -91,12 +98,11 @@ module "gke" {
   project_id                        = module.project-factory.project_id
   name                              = "${local.cluster_type}-cluster${var.cluster_name_suffix}"
   region                            = var.region
-  zones                             = var.zones
-  network                           = var.network
-  subnetwork                        = var.subnetwork
-  ip_range_pods                     = var.ip_range_pods
-  ip_range_services                 = var.ip_range_services
-  create_service_account            = false
+  network                           = module.network.network_name
+  subnetwork                        = module.network
+  ip_range_pods                     = module.network.subnets_ips["${var.subnet_a}-a-pods"]
+  ip_range_services                 = module.network.subnets_ips["${var.subnet_a}-a-services"]
+  create_service_account            = true
   remove_default_node_pool          = false
   disable_legacy_metadata_endpoints = false
   cluster_autoscaling               = var.cluster_autoscaling
@@ -107,7 +113,7 @@ module "gke" {
       name            = "pool-01"
       min_count       = 1
       max_count       = 2
-      service_account = var.compute_engine_service_account
+      service_account = "terraform@happybase-dev.iam.gserviceaccount.com"
       auto_upgrade    = true
     },
     {
@@ -121,7 +127,7 @@ module "gke" {
       accelerator_count = 1
       accelerator_type  = "nvidia-tesla-p4"
       auto_repair       = false
-      service_account   = var.compute_engine_service_account
+      service_account   = "terraform@happybase-dev.iam.gserviceaccount.com"
     },
     {
       name                      = "pool-03"
@@ -131,7 +137,7 @@ module "gke" {
       node_count                = 2
       disk_type                 = "pd-standard"
       auto_upgrade              = true
-      service_account           = var.compute_engine_service_account
+      service_account           = "terraform@happybase-dev.iam.gserviceaccount.com"
       pod_range                 = "test"
       sandbox_enabled           = true
       cpu_manager_policy        = "static"
@@ -142,7 +148,7 @@ module "gke" {
     {
       name                = "pool-04"
       min_count           = 0
-      service_account     = var.compute_engine_service_account
+      service_account     = "terraform@happybase-dev.iam.gserviceaccount.com"
       queued_provisioning = true
     },
   ]
