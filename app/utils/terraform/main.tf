@@ -118,8 +118,8 @@ module "gke" {
   region                            = var.region
   network                           = module.network.network_name
   subnetwork                        = module.network.subnets_names[0]
-  ip_range_pods                     = module.network.subnets_ips["${var.environment}-app-${var.region}-a-pods"]
-  ip_range_services                 = module.network.subnets_ips["${var.environment}-app-${var.region}-a-services"]
+  ip_range_pods                     = module.network.subnets_ips[0]
+  ip_range_services                 = module.network.subnets_ips[0]
   create_service_account            = true
   remove_default_node_pool          = false
   disable_legacy_metadata_endpoints = false
