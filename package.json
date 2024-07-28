@@ -33,6 +33,7 @@
     "@pulumi/aws": "^6.45.0",
     "@pulumi/awsx": "^2.13.0",
     "@pulumi/eks": "^2.7.5",
+    "@pulumi/google-native": "^0.32.0",
     "@pulumi/kubernetes": "^4.15.0",
     "@pulumi/pulumi": "^3.125.0",
     "@radix-ui/react-accordion": "^1.2.0",
