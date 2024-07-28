@@ -99,17 +99,17 @@ module "network" {
   network_name = var.network_name
   subnets = [
     {
-      subnet_name   = "${var.environment}-app-${var.region}-a"
+      subnet_name   = "${var.network_name}-${var.region}-a"
       subnet_ip     = "10.0.1.0/24"
       subnet_region = var.region
     },
     {
-      subnet_name   = "${var.environment}-backend-${var.region}-b"
+      subnet_name   = "${var.network_name}-${var.region}-b"
       subnet_ip     = "10.0.2.0/24"
       subnet_region = var.region
     },
     {
-      subnet_name   = "${var.environment}-db-${var.region}-c"
+      subnet_name   = "${var.network_name}-${var.region}-c"
       subnet_ip     = "10.0.3.0/24"
       subnet_region = var.region
     }
@@ -124,7 +124,6 @@ module "project-factory" {
   name                    = var.project_name
   org_id                  = var.organization_id
   billing_account         = var.billing_account
-  default_service_account = "DEPRIVILEGE"
 
   activate_api_identities = [{
     api = "container.googleapis.com"
