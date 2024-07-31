@@ -13,7 +13,8 @@ import {
     RadioTower,
     ArrowDownUp,
     MapPinned,
-    Database
+    Database,
+    LayoutPanelLeftIcon
   } from "lucide-react";
 
 import {
@@ -56,28 +57,29 @@ import {
             submenus: []
           },
           {
-            href: "/query",
-            label: "Query Tool",
-            active: pathname.includes("/query"),
-            icon: Braces,
-            submenus: []
-          },
-          {
-            href: "/connectors",
-            label: "Connectors",
-            active: pathname.includes("/connectors"),
-            icon: Database,
+            href: "/apps",
+            label: "Apps",
+            active: pathname.includes("/apps"),
+            icon: LayoutPanelLeftIcon,
             submenus: [
               {
-                href: "/connectors/",
-                label: "Manage Connectors",
-                active: pathname.includes("/connectors"),
+                href: "/apps/add",
+                label: "Add App",
+                active: pathname.includes("/apps/add"),
               },
               {
-                href: "/connectors/add",
-                label: "Add Connectors",
-                active: pathname.includes("/connectors/add"),
+                href: "/apps/",
+                label: "Manage Apps",
+                active: pathname.includes("/apps/"),
               },
+            ]
+          },
+          {
+            href: "/sources/",
+            label: "Sources",
+            active: pathname.includes("/sources/"),
+            icon: Database,
+            submenus: [
             ]
           },
           {
@@ -85,7 +87,18 @@ import {
             label: "Broadcasts",
             active: pathname.includes("/broadcasts"),
             icon: RadioTower,
-            submenus: []
+            submenus: [
+              {
+                href: "/broadcasts/analytics",
+                label: "Share Visualizations",
+                active: pathname.includes("/broadcasts/analytics"),
+              },
+              {
+                href: "/connect/expose-query",
+                label: "Expose Query",
+                active: pathname.includes("/sources/expose-query"),
+              },
+            ]
           },
         ]
       },

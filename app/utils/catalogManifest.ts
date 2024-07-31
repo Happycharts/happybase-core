@@ -1,9 +1,9 @@
-import { CatalogConfig } from '../types/catalog';
+import { sourcesConfig } from '../types/sources';
 
-export function generateCatalogManifest(config: CatalogConfig): string {
+export function generatesourcesManifest(config: sourcesConfig): string {
   const manifest = {
     apiVersion: 'trino.stackable.tech/v1alpha1',
-    kind: 'TrinoCatalog',
+    kind: 'Trinosources',
     metadata: {
       name: config.name,
       labels: config.labels,

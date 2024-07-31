@@ -19,7 +19,7 @@ const allowedRoutes = [
   '/api',
   '/query',
   '/auth',
-  '/connectors',
+  '/apps',
   '/terms',
   '/privacy',
 ];
