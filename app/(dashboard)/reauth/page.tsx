@@ -1,5 +1,5 @@
+"use client"
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -7,7 +7,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 const ReauthPage = () => {
-  const router = useRouter();
 
   useEffect(() => {
     const refreshOnboarding = async () => {
