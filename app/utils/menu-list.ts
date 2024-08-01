@@ -76,19 +76,19 @@ import {
           },
           {
             href: "/broadcasts",
-            label: "Broadcasts (WIP)",
+            label: "Broadcasts",
             active: pathname.includes("/broadcasts"),
             icon: RadioTower,
             submenus: [
               {
-                href: "/broadcasts/add",
-                label: "Create Broadcast",
-                active: pathname.includes("/broadcast/add"),
-              },
-              {
                 href: "/broadcasts/",
                 label: "Manage Broadcasts",
                 active: pathname.includes("/broadcasts/"),
+              },
+              {
+                href: "/broadcasts/requests",
+                label: "Share Requests",
+                active: pathname.includes("/broadcasts/requests"),
               },
             ]
           },

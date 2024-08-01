@@ -1,20 +1,98 @@
 "use client"
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import { createClerkSupabaseClient } from '@/app/utils/supabase/clerk'
-import { useUser } from '@clerk/nextjs';
 import Logo from '@/public/happybase.svg'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { useUser, useOrganization } from '@clerk/nextjs';
+import { Resend } from 'resend';
+import { HappybaseInviteUserEmail } from '@/app/utils/email-templates/invite'; // Import the email template
 
 export default function BroadcastPage() {
   const [broadcast, setBroadcast] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [companyName, setCompanyName] = useState('');
+  const [companyLogo, setCompanyLogo] = useState('');
   const [url, setUrl] = useState('')
+  const [inviteeEmail, setInviteeEmail] = useState(''); 
+  const [inviteLink, setInviteLink] = useState(''); // New state for invite link
   const { user } = useUser();
   const params = useParams()
   const { id } = params
+  const { organization } = useOrganization();
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchInviteLink = async () => {
+      if (!user?.id || !organization?.id) return;
+
+      const supabase = createClerkSupabaseClient();
+      const { data, error } = await supabase
+        .from('organizations')
+        .select('*')
+        .eq('id', organization.id);
+
+      if (error) {
+        console.error(error);
+      } else if (data && data.length > 0) {
+        if (isMounted) {
+          setInviteLink(data[0].inviteLink);
+        }
+      }
+    };
+
+    fetchInviteLink();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id, organization?.id]);
+
+  useEffect(() => {
+    if (organization) {
+      setCompanyName(organization.name);
+      setCompanyLogo(organization.imageUrl);
+    }
+  }, [organization]);
+
+  const handleRequestQuote = async () => {
+    if (!inviteeEmail) {
+      alert('Please enter an email address');
+      return;
+    }
+
+    const resend = new Resend('re_Rh8CFXtP_EfbsvjFU8ikD2MpxjnGg9sBq');
+
+    const invitedByName = user?.fullName || 'User';
+    const invitedByEmail = user?.emailAddresses[0].emailAddress || 'user@example.com';
+
+    const emailContent = HappybaseInviteUserEmail({
+      name: invitedByName,
+      logo: companyLogo,
+      invitedByName,
+      invitedByEmail,
+      companyName,
+      inviteeLogo: companyLogo, // Assuming invitee logo is the same as company logo
+      inviteeEmail,
+      inviteLink, // Use the state variable here
+    });
+
+    const { data, error } = await resend.emails.send({
+      from: 'James <onboarding@happybase.co>',
+      to: [inviteeEmail],
+      subject: `You're invited to a 30-min data access consultation with ${companyName}`,
+      react: emailContent,
+    });
+
+    if (error) {
+      console.error('Error sending email:', error);
+      return;
+    }
+
+    console.log('Email sent successfully:', data);
+  };
 
   useEffect(() => {
     const fetchBroadcast = async () => {
@@ -96,11 +174,19 @@ export default function BroadcastPage() {
         boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
         zIndex: 1000
       }}>
-        <p style={{ marginBottom: '5px' }}>Want to query? Request an access key</p>
+        <p style={{ marginBottom: '5px' }}>Want to query? Request an access quote</p>
+        <Input
+          type="email"
+          placeholder="Enter your email"
+          value={inviteeEmail}
+          onChange={(e) => setInviteeEmail(e.target.value)}
+          style={{ marginBottom: '10px', width: '300px' }}
+        />
         <Button
           style={{ width: '300px', background: 'black', padding: '5px', color: 'white' }}
+          onClick={handleRequestQuote}
         >
-          Request an Access Key
+          Request an access quote
         </Button>
       </div>
     </div>

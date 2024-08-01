@@ -1,64 +1,21 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from '@/components/ui/button';
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar } from "@/components/ui/calendar";
-import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, MessageSquare, Calendar as CalendarIcon, Play, Copy } from 'lucide-react';
 import { useUser, useOrganization } from "@clerk/nextjs";
-import Cal, { getCalApi } from "@calcom/embed-react";
 import Link from "next/link";
-import { createClient } from '@/app/utils/supabase/client';
 import { Skeleton } from "@/components/ui/skeleton";  // Adjust the import path as needed
 import { Input } from '@/components/ui/input';
 
 export default function HomePage() {
-  const [loading, setLoading] = useState(true);
-  const [cubeUrl, setCubeUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [schedulingLink, setSchedulingLink] = useState('');
   const user = useUser();
   const firstName = user?.user?.firstName;
   const lastName = user?.user?.lastName;
   const email = user?.user?.primaryEmailAddress?.emailAddress;
   const orgName = useOrganization().organization?.name;
   const orgId = useOrganization().organization?.id;
-
-  useEffect(() => {
-    const fetchCubeUrl = async () => {
-      if (!orgId) {
-        console.error('Organization ID is missing');
-        setLoading(false);
-        return;
-      }
-
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from('organizations')
-        .select('cube_url')
-        .eq('id', orgId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching Cube URL:', error);
-      } else {
-        setCubeUrl(data.cube_url);
-      }
-
-      setLoading(false);
-    };
-
-    fetchCubeUrl();
-  }, [orgId]);
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(cubeUrl).then(() => {
-      alert('Cube URL copied to clipboard!');
-    }).catch(err => {
-      console.error('Failed to copy: ', err);
-    });
-  };
 
   const SkeletonContent = () => (
     <>
@@ -100,6 +57,37 @@ export default function HomePage() {
     </>
   );
 
+  const handleAddSchedulingLink = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/insert-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          organization: {
+            id: orgId,
+            name: orgName,
+          },
+          url: schedulingLink,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert('Scheduling link added successfully!');
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error('Error adding scheduling link:', error);
+      alert('An error occurred while adding the scheduling link.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto p-6 bg-white min-h-screen">
       {loading ? (
@@ -124,35 +112,51 @@ export default function HomePage() {
                   </Button>
                 </li>
                 <li className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-xl font-semibold text-black mb-3">2. Create a broadcast</h3>
-                <p className="text-black mb-4">Publish your tool so your partners and audience can learn about your data program</p>
-                <div className="flex items-center space-x-2">
-                  <div style={{
-                    position: 'relative',
-                    paddingBottom: 'calc(51.36054421768708% + 41px)',
-                    height: 0,
-                    width: '100%'
-                  }}>
-                    <iframe
-                      src="https://demo.arcade.software/Bc532er376ZZJTQAfWyh?embed&show_copy_link=true"
-                      title="localhost:3000/apps"
-                      frameBorder="0"
-                      loading="lazy"
-                      allow="clipboard-write"
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        colorScheme: 'light'
-                      }}
-                    ></iframe>
-                  </div>
-                </div>
-              </li>
+                  <h3 className="text-xl font-semibold text-black mb-3">2. Add a scheduling link</h3>
+                  <p className="text-black mb-4">Provide a link so your data stakeholders can schedule consultations with you</p>
+                  <Input
+                    className="w-full mb-4"
+                    placeholder="Add your scheduling link"
+                    value={schedulingLink}
+                    onChange={(e) => setSchedulingLink(e.target.value)}
+                  />
+                  <Button
+                    className="bg-black hover:bg-gray-800 text-white transition-colors duration-300"
+                    onClick={handleAddSchedulingLink}
+                  >
+                    Add your scheduling link
+                  </Button>
+                </li>
                 <li className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-semibold text-black mb-3">3. Invite your data stakeholders</h3>
+                  <h3 className="text-xl font-semibold text-black mb-3">3. Create a broadcast</h3>
+                  <p className="text-black mb-4">Publish your tool so your partners and audience can learn about your data program</p>
+                  <div className="flex items-center space-x-2">
+                    <div style={{
+                      position: 'relative',
+                      paddingBottom: 'calc(51.36054421768708% + 41px)',
+                      height: 0,
+                      width: '100%'
+                    }}>
+                      <iframe
+                        src="https://demo.arcade.software/Bc532er376ZZJTQAfWyh?embed&show_copy_link=true"
+                        title="localhost:3000/apps"
+                        frameBorder="0"
+                        loading="lazy"
+                        allow="clipboard-write"
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          colorScheme: 'light'
+                        }}
+                      ></iframe>
+                    </div>
+                  </div>
+                </li>
+                <li className="bg-gray-50 p-6 rounded-lg">
+                  <h3 className="text-xl font-semibold text-black mb-3">4. Invite your data stakeholders</h3>
                   <p className="text-black mb-4">Send the link to your data access portal to your partners, researchers, and LLM developers so they can request access to your data</p>
                 </li>
               </ol>
