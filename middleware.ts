@@ -28,7 +28,8 @@ const allowedRoutes = [
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://app.happybase.co'
+  'https://app.happybase.co',
+  'https://connect.stripe.com'
   // Add other allowed origins as needed
 ];
 

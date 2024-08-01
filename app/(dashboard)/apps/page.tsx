@@ -13,10 +13,13 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Toast } from '@/components/ui/toast'
 import { toast, useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster";
+import Stripe from 'stripe';
+import { Input } from "@/components/ui/input";
 
 type appData = {
   id: string;
-  creator: string;
+  creator_id: string;
+  creator_name: string;
   name: string;
   url: string; // Add the URL field to the appData type
 };
@@ -39,9 +42,14 @@ export default function Apps() {
   const [appToBroadcast, setAppToBroadcast] = useState<string | null>(null);
   const [expiration, setExpiration] = useState('');
   const [url, setUrl] = useState('');
+  const fullName = useUser().user?.fullName;
   const [broadcastedApps, setBroadcastedApps] = useState<string[]>(() => {
     const saved = localStorage.getItem('broadcastedApps');
     return saved ? JSON.parse(saved) : [];
+  });
+    const [cubeUrl, setCubeUrl] = useState('');
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2023-08-16',
   });
 
   useEffect(() => {
@@ -54,7 +62,7 @@ export default function Apps() {
       const { data, error } = await supabase
         .from('apps')
         .select('*')
-        .eq('creator', user.id);
+        .eq('creator_id', user.id);
 
       if (error) {
         console.error(error);
@@ -98,22 +106,42 @@ export default function Apps() {
   };
 
   const broadcastApp = async () => {
-    if (!appToBroadcast || !expiration || !url) return;
-
+    if (!appToBroadcast || !expiration || !url || !cubeUrl) return;
+  
     try {
-      const response = await fetch('/api/broadcasts/create', {
+      const orgId = organization?.id;
+      const email = user?.primaryEmailAddress?.emailAddress;
+
+      if (!orgId || !email) {
+        throw new Error('Missing required fields');
+      }
+      // Call the API route to create the merchant account if it doesn't exist
+      const response = await fetch('/api/merchants/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: appToBroadcast, expiration, url }),
+        body: JSON.stringify({ orgId, email }),
       });
-
+  
       if (!response.ok) {
+        throw new Error('Failed to create merchant account');
+      }
+  
+      // Proceed with the broadcast app logic
+      const broadcastResponse = await fetch('/api/broadcasts/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: appToBroadcast, expiration, url, cubeUrl, fullName }),
+      });
+  
+      if (!broadcastResponse.ok) {
         throw new Error('Failed to broadcast app');
       }
-
-      const data = await response.json();
+  
+      const data = await broadcastResponse.json();
       toast({
         title: "App broadcasted successfully!",
         description: `Expiration: ${expiration}`,
@@ -121,6 +149,7 @@ export default function Apps() {
       setAppToBroadcast(null);
       setExpiration('');
       setUrl('');
+      setCubeUrl('');
       setBroadcastedApps([...broadcastedApps, appToBroadcast]);
     } catch (error) {
       console.error('Error broadcasting app:', error);
@@ -131,6 +160,7 @@ export default function Apps() {
       });
     }
   };
+  
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -193,7 +223,7 @@ export default function Apps() {
                       )}
                       <span className="font-medium">{app.name}</span>
                     </TableCell>
-                    <TableCell>{app.creator}</TableCell>
+                    <TableCell>{app.creator_name}</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <input
@@ -294,32 +324,39 @@ export default function Apps() {
       </Dialog>
 
       <Dialog open={!!appToBroadcast} onOpenChange={(open) => setAppToBroadcast(open ? appToBroadcast : null)}>
-        <DialogContent className="bg-white">
-          <DialogHeader>
-            <DialogTitle>Broadcast App</DialogTitle>
-            <DialogDescription>
-              Enter the expiration date for the broadcast.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Select value={expiration} onValueChange={setExpiration}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select expiration date" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1 Week">1 Week</SelectItem>
-                <SelectItem value="2 Weeks">2 Weeks</SelectItem>
-                <SelectItem value="3 Weeks">3 Weeks</SelectItem>
-                <SelectItem value="4 Weeks">4 Weeks</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAppToBroadcast(null)}>Cancel</Button>
-            <Button onClick={broadcastApp}>Broadcast</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+    <DialogContent className="bg-white">
+      <DialogHeader>
+        <DialogTitle>Broadcast App</DialogTitle>
+        <DialogDescription>
+          Enter the expiration date and Cube URL for the broadcast.
+        </DialogDescription>
+      </DialogHeader>
+      <div className="space-y-4">
+        <Select value={expiration} onValueChange={setExpiration}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select expiration date" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1 Week">1 Week</SelectItem>
+            <SelectItem value="2 Weeks">2 Weeks</SelectItem>
+            <SelectItem value="3 Weeks">3 Weeks</SelectItem>
+            <SelectItem value="4 Weeks">4 Weeks</SelectItem>
+          </SelectContent>
+        </Select>
+        <Input
+          type="text"
+          value={cubeUrl}
+          onChange={(e) => setCubeUrl(e.target.value)}
+          placeholder="Enter Cube URL"
+          className="w-full p-2 border rounded"
+        />
+      </div>
+      <DialogFooter>
+        <Button variant="outline" onClick={() => setAppToBroadcast(null)}>Cancel</Button>
+        <Button onClick={broadcastApp}>Broadcast</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
     </div>
   );
 }

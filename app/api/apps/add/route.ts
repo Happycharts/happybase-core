@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   try {
     const { data, error } = await supabase
       .from('apps')
-      .insert({ name: appName, url, organization: orgId, creator: userId });
+      .insert({ name: appName, url, organization: orgId, creator_id: userId });
 
     if (error) {
       throw error;

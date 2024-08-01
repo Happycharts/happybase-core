@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { id, expiration, url } = await request.json();
+  const { id, expiration, url, cubeUrl, fullName } = await request.json();
 
   if (!id || !expiration || !url) {
     return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       .from('apps')
       .select('id')
       .eq('id', id)
-      .eq('creator', userId)
+      .eq('creator_id', userId)
       .single();
 
     if (appError || !app) {
@@ -59,9 +59,11 @@ export async function POST(request: NextRequest) {
       .from('broadcasts')
       .insert({
         id: id,
-        creator: userId,
+        creator_id: userId,
         expiration_date: expirationDate.toISOString(),
-        url: url
+        url: url,
+        cube_url: cubeUrl,
+        creator_name: fullName
       })
       .select()
       .single();
