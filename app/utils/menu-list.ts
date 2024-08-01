@@ -85,6 +85,11 @@ import {
                 label: "Manage Broadcasts",
                 active: pathname.includes("/broadcasts/"),
               },
+              {
+                href: "/broadcasts/requests",
+                label: "Share Requests",
+                active: pathname.includes("/broadcasts/requests"),
+              },
             ]
           },
         ]
