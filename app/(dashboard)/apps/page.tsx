@@ -6,9 +6,10 @@ import React, { useEffect, useState } from 'react';
 import { useOrganization, useUser } from '@clerk/nextjs';
 import { createClerkSupabaseClient } from '@/app/utils/supabase/clerk';
 import Link from 'next/link';
-import { PlusCircle, FileBox, Trash2, AlertCircle, Copy } from 'lucide-react';
+import { PlusCircle, FileBox, Trash2, AlertCircle, Copy, RadioTower } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Toast } from '@/components/ui/toast'
 import { toast, useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster";
@@ -17,6 +18,7 @@ type appData = {
   id: string;
   creator: string;
   name: string;
+  url: string; // Add the URL field to the appData type
 };
 
 export default function Apps() {
@@ -25,6 +27,13 @@ export default function Apps() {
   const [Apps, setApps] = useState<appData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [appToDelete, setappToDelete] = useState<string | null>(null);
+  const [appToBroadcast, setAppToBroadcast] = useState<string | null>(null);
+  const [expiration, setExpiration] = useState('');
+  const [url, setUrl] = useState('');
+  const [broadcastedApps, setBroadcastedApps] = useState<string[]>(() => {
+    const saved = localStorage.getItem('broadcastedApps');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -55,6 +64,10 @@ export default function Apps() {
     };
   }, [user?.id]);
 
+  useEffect(() => {
+    localStorage.setItem('broadcastedApps', JSON.stringify(broadcastedApps));
+  }, [broadcastedApps]);
+
   const deleteApp = async () => {
     if (!user?.id || !appToDelete) return;
 
@@ -75,6 +88,41 @@ export default function Apps() {
     }
   };
 
+  const broadcastApp = async () => {
+    if (!appToBroadcast || !expiration || !url) return;
+
+    try {
+      const response = await fetch('/api/broadcasts/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: appToBroadcast, expiration, url }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to broadcast app');
+      }
+
+      const data = await response.json();
+      toast({
+        title: "App broadcasted successfully!",
+        description: `Expiration: ${expiration}`,
+      });
+      setAppToBroadcast(null);
+      setExpiration('');
+      setUrl('');
+      setBroadcastedApps([...broadcastedApps, appToBroadcast]);
+    } catch (error) {
+      console.error('Error broadcasting app:', error);
+      toast({
+        title: "Failed to broadcast app",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
       toast({
@@ -84,6 +132,7 @@ export default function Apps() {
       console.error('Failed to copy: ', err);
     });
   };
+
   // Add logging to ensure state updates are correct
   useEffect(() => {
     console.log('Apps:', Apps);
@@ -159,7 +208,7 @@ export default function Apps() {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="outline" size="sm" className="mr-2">
+                            <Button variant="outline" size="sm" className="mr-1">
                               <Link href={`/apps/${app.id}`}>
                                 <FileBox className="h-4 w-4" />
                               </Link>
@@ -187,6 +236,26 @@ export default function Apps() {
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className={`ml-1 ${broadcastedApps.includes(app.id) ? 'text-green-600 hover:text-green-700' : ''}`}
+                              onClick={() => {
+                                setAppToBroadcast(app.id);
+                                setUrl(app.url); // Set the URL from the app data
+                              }}
+                            >
+                              <RadioTower className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Broadcast app</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -208,6 +277,34 @@ export default function Apps() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setappToDelete(null)}>Cancel</Button>
             <Button onClick={deleteApp}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!appToBroadcast} onOpenChange={(open) => setAppToBroadcast(open ? appToBroadcast : null)}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>Broadcast App</DialogTitle>
+            <DialogDescription>
+              Enter the expiration date for the broadcast.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Select value={expiration} onValueChange={setExpiration}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select expiration date" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1 Week">1 Week</SelectItem>
+                <SelectItem value="2 Weeks">2 Weeks</SelectItem>
+                <SelectItem value="3 Weeks">3 Weeks</SelectItem>
+                <SelectItem value="4 Weeks">4 Weeks</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAppToBroadcast(null)}>Cancel</Button>
+            <Button onClick={broadcastApp}>Broadcast</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

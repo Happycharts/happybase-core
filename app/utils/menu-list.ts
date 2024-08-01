@@ -82,24 +82,6 @@ import {
             submenus: [
             ]
           },
-          {
-            href: "/broadcasts",
-            label: "Broadcasts",
-            active: pathname.includes("/broadcasts"),
-            icon: RadioTower,
-            submenus: [
-              {
-                href: "/broadcasts/analytics",
-                label: "Share Visualizations",
-                active: pathname.includes("/broadcasts/analytics"),
-              },
-              {
-                href: "/connect/expose-query",
-                label: "Expose Query",
-                active: pathname.includes("/sources/expose-query"),
-              },
-            ]
-          },
         ]
       },
       {
