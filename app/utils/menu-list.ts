@@ -13,7 +13,8 @@ import {
     RadioTower,
     ArrowDownUp,
     MapPinned,
-    Database
+    Database,
+    LayoutPanelLeftIcon
   } from "lucide-react";
 
 import {
@@ -56,36 +57,40 @@ import {
             submenus: []
           },
           {
-            href: "/query",
-            label: "Query Tool",
-            active: pathname.includes("/query"),
-            icon: Braces,
-            submenus: []
-          },
-          {
-            href: "/connectors",
-            label: "Connectors",
-            active: pathname.includes("/connectors"),
-            icon: Database,
+            href: "/apps",
+            label: "Apps",
+            active: pathname.includes("/apps"),
+            icon: LayoutPanelLeftIcon,
             submenus: [
               {
-                href: "/connectors/",
-                label: "Manage Connectors",
-                active: pathname.includes("/connectors"),
+                href: "/apps/add",
+                label: "Add App",
+                active: pathname.includes("/apps/add"),
               },
               {
-                href: "/connectors/add",
-                label: "Add Connectors",
-                active: pathname.includes("/connectors/add"),
+                href: "/apps/",
+                label: "Manage Apps",
+                active: pathname.includes("/apps/"),
               },
             ]
           },
           {
             href: "/broadcasts",
-            label: "Broadcasts",
+            label: "Broadcasts (WIP)",
             active: pathname.includes("/broadcasts"),
             icon: RadioTower,
-            submenus: []
+            submenus: [
+              {
+                href: "/broadcasts/add",
+                label: "Create Broadcast",
+                active: pathname.includes("/broadcast/add"),
+              },
+              {
+                href: "/broadcasts/",
+                label: "Manage Broadcasts",
+                active: pathname.includes("/broadcasts/"),
+              },
+            ]
           },
         ]
       },

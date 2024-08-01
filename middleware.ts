@@ -8,6 +8,7 @@ const isPublicRoute = createRouteMatcher([
   '/auth/(.*)',  // This matches '/auth/' and any path under it
   '/pricing',
   '/privacy',
+  '/broadcasts/(.*)',
   '/terms',
   '/landing',
   '/api/(.*)',
@@ -19,7 +20,8 @@ const allowedRoutes = [
   '/api',
   '/query',
   '/auth',
-  '/connectors',
+  '/broadcasts',
+  '/apps',
   '/terms',
   '/privacy',
 ];

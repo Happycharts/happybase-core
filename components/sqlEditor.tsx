@@ -107,6 +107,41 @@ export function SQLEditor() {
   const [localFiles, setLocalFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const handleRunQuery = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query }),
+      });
+  
+      // Log the raw response text for debugging
+      const responseText = await response.text();
+      console.log('Raw response text:', responseText);
+  
+      // Check if the response is valid JSON
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Error parsing JSON:', parseError);
+        setQueryResult({ error: 'Invalid JSON response from the server.' });
+        setIsLoading(false);
+        return;
+      }
+  
+      setQueryResult(result);
+    } catch (error) {
+      console.error('Error running query:', error);
+      setQueryResult({ error: 'An error occurred while running the query.' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
 
   return (
     <div className="flex h-screen">
@@ -124,9 +159,9 @@ export function SQLEditor() {
           </Box>
         </div>
 
-        <Box className="h-64 border-t p-4 overflow-auto"> 
-          <div className="flex flex-row items-center space-x-4 mb-4"> 
-            <Button className="bg-black text-white hover:bg-primary" >Run Query</Button>
+        <Box className="h-64 border-t p-4 overflow-auto">
+          <div className="flex flex-row items-center space-x-4 mb-4">
+            <Button className="bg-black text-white hover:bg-primary" onClick={handleRunQuery}>Run Query</Button>
           </div>
           <ResultsArea queryResult={queryResult} />
         </Box>
