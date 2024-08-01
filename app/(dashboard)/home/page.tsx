@@ -118,7 +118,7 @@ export default function HomePage() {
                   <h3 className="text-xl font-semibold text-black mb-3">1. Connect your first tool</h3>
                   <p className="text-black mb-4">Connect a tool so you can start centralizing your semantic layer.</p>
                   <Button className="bg-black hover:bg-gray-800 text-white transition-colors duration-300">
-                    <Link href="/apps/">
+                    <Link href="/apps/add">
                       Add a tool
                     </Link>
                   </Button>
