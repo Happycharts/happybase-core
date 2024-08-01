@@ -21,6 +21,15 @@ type appData = {
   url: string; // Add the URL field to the appData type
 };
 
+const appLogos = {
+  "Hex": "https://cdn.prod.website-files.com/5d1126db676120bb4fe43762/63fd16cde55f78843fae69d8_e4184b933d3022409dd3d63191e1b123f2618cd9-250x251.png",
+  "Notion": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Notion-logo.svg/2048px-Notion-logo.svg.png",
+  "Observable": "https://avatars.githubusercontent.com/u/30080011?s=280&v=4",
+  "Coda": "https://upload.wikimedia.org/wikipedia/en/3/3f/Coda_%28document_editor%29_logo.png",
+  "Deepnote": "https://cdn-images-1.medium.com/max/1200/1*Geecfuc_bb_Fa3i4zWnsjQ.png",
+  "Custom App": "https://cdn-icons-png.flaticon.com/512/487/487622.png"
+};
+
 export default function Apps() {
   const { organization } = useOrganization();
   const { user } = useUser();
@@ -179,6 +188,9 @@ export default function Apps() {
                 {Apps.map((app) => (
                   <TableRow key={app.id} className="hover:bg-gray-50">
                     <TableCell className="flex items-center space-x-3">
+                      {appLogos[app.name as keyof typeof appLogos] && (
+                        <img src={appLogos[app.name as keyof typeof appLogos]} alt={`${app.name} logo`} className="w-8 h-8" />
+                      )}
                       <span className="font-medium">{app.name}</span>
                     </TableCell>
                     <TableCell>{app.creator}</TableCell>

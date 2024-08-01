@@ -14,44 +14,34 @@ import { useOrganization } from "@clerk/nextjs";
 const apps = [
   {
     name: "Hex",
-    description: "Add a Hex apps",
+    description: "Embed a Hex app",
     iconSrc: "https://cdn.prod.website-files.com/5d1126db676120bb4fe43762/63fd16cde55f78843fae69d8_e4184b933d3022409dd3d63191e1b123f2618cd9-250x251.png"
   },
   {
-    name: "Snowflake",
-    description: "Add a Snowflake apps",
-    iconSrc: "https://asset.brandfetch.io/idJz-fGD_q/iddesHsUDj.svg?updated=1668517499361"
+    name: "Notion",
+    description: "Embed a Notion app",
+    iconSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Notion-logo.svg/2048px-Notion-logo.svg.png"
   },
   {
-    name: "Postgres",
-    description: "Add a Postgres apps",
-    iconSrc: "https://asset.brandfetch.io/idjSeCeMle/idZol6htuN.svg?updated=1716432965006"
+    name: "Observable",
+    description: "Embed an Observable app",
+    iconSrc: "https://avatars.githubusercontent.com/u/30080011?s=280&v=4"
   },
   {
-    name: "Google Sheets",
-    description: "Add a Google Sheets apps",
-    iconSrc: "https://play-lh.googleusercontent.com/keE2gN0Hqh8-Tsf_RYZ_-yS2uo6ToqYVyRBv_UZaLXsgeeHBd2YPcEUWEF4DEtfGyb1h"
+    name: "Coda",
+    description: "Embed a Coda document",
+    iconSrc: "https://upload.wikimedia.org/wikipedia/en/3/3f/Coda_%28document_editor%29_logo.png"
   },
   {
-    name: "Amazon Kinesis",
-    description: "Add a Kinesis apps",
-    iconSrc: "https://trino.io/docs/current/_static/img/kinesis.png"
+    name: "Deepnote",
+    description: "Embed your Deepnote workspace",
+    iconSrc: "https://cdn-images-1.medium.com/max/1200/1*Geecfuc_bb_Fa3i4zWnsjQ.png"
   },
   {
-    name: "MySQL",
-    description: "Add a MySQL apps",
-    iconSrc: "https://trino.io/docs/current/_static/img/mysql.png"
+    name: "Custom App",
+    description: "Embed any app with just the URL",
+    iconSrc: "https://cdn-icons-png.flaticon.com/512/487/487622.png"
   },
-  {
-    name: "Apache Druid",
-    description: "Add a Druid apps",
-    iconSrc: "https://trino.io/docs/current/_static/img/druid.png"
-  },
-  {
-    name: "Redshift",
-    description: "Add a Redshift apps",
-    iconSrc: "https://trino.io/docs/current/_static/img/redshift.png"
-  }
 ]
 
 interface DialogState {
@@ -127,12 +117,38 @@ export default function AppsPage() {
                     <form onSubmit={(e) => handleSubmit(e, app.name)}>
                       <p>Fill out your connection details to begin querying your data</p>
                       <div className="space-y-4 mt-4">
-                        <Input name="sharing-url" placeholder="https://app.hex.tech/12709cd6-e9dc-47c3-a6b7-5ef72acfba4e/app/8103413b-a2b7-492c-beee-f06aed8968e6/latest" />
+                        <Input name="sharing-url" placeholder="Your sharable Hex URL" />
                       </div>
                       <Button type="submit" className="w-full bg-black mt-4">Connect</Button>
                     </form>
                   )}
-                  {/* Add similar conditions for other app types */}
+                  {app.name === 'Observable' && (
+                    <form onSubmit={(e) => handleSubmit(e, app.name)}>
+                      <p>Fill out your connection details to begin querying your data</p>
+                      <div className="space-y-4 mt-4">
+                        <Input name="sharing-url" placeholder="Your sharable Observable URL" />
+                      </div>
+                      <Button type="submit" className="w-full bg-black mt-4">Connect</Button>
+                    </form>
+                  )}
+                    {app.name === 'Notion' && (
+                    <form onSubmit={(e) => handleSubmit(e, app.name)}>
+                      <p>Fill out your connection details to begin querying your data</p>
+                      <div className="space-y-4 mt-4">
+                        <Input name="sharing-url" placeholder="Your sharable Notion URL" />
+                      </div>
+                      <Button type="submit" className="w-full bg-black mt-4">Connect</Button>
+                    </form>
+                  )}
+                    {app.name === 'Coda' && (
+                    <form onSubmit={(e) => handleSubmit(e, app.name)}>
+                      <p>Fill out your connection details to begin querying your data</p>
+                      <div className="space-y-4 mt-4">
+                        <Input name="sharing-url" placeholder="Your sharable Coda URL" />
+                      </div>
+                      <Button type="submit" className="w-full bg-black mt-4">Connect</Button>
+                    </form>
+                  )}
                 </DialogDescription>
               </DialogContent>
             </Dialog>

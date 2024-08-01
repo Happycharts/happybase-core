@@ -119,32 +119,41 @@ export default function HomePage() {
                   <p className="text-black mb-4">Connect a tool so you can start centralizing your semantic layer.</p>
                   <Button className="bg-black hover:bg-gray-800 text-white transition-colors duration-300">
                     <Link href="/apps/">
-                      Add a Source
+                      Add a tool
                     </Link>
                   </Button>
                 </li>
                 <li className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-semibold text-black mb-3">2. Copy your Cube URL</h3>
-                  <p className="text-black mb-4">Copy your Cube URL so you can use it</p>
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      type="text"
-                      value={cubeUrl}
-                      readOnly
-                      className="w-full border rounded px-2 py-1"
-                    />
-                    <Button onClick={copyToClipboard} className="bg-black hover:bg-gray-800 text-white transition-colors duration-300">
-                      <Copy className="h-4 w-4" />
-                    </Button>
+                <h3 className="text-xl font-semibold text-black mb-3">2. Create a broadcast</h3>
+                <p className="text-black mb-4">Publish your tool so your partners and audience can learn about your data program</p>
+                <div className="flex items-center space-x-2">
+                  <div style={{
+                    position: 'relative',
+                    paddingBottom: 'calc(51.36054421768708% + 41px)',
+                    height: 0,
+                    width: '100%'
+                  }}>
+                    <iframe
+                      src="https://demo.arcade.software/Bc532er376ZZJTQAfWyh?embed&show_copy_link=true"
+                      title="localhost:3000/apps"
+                      frameBorder="0"
+                      loading="lazy"
+                      allow="clipboard-write"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        colorScheme: 'light'
+                      }}
+                    ></iframe>
                   </div>
-                </li>
+                </div>
+              </li>
                 <li className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-semibold text-black mb-3">3. Invite your team</h3>
-                  <p className="text-black mb-4">Invite your teammates to make collaboration more fun and effective</p>
-                </li>
-                <li className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-semibold text-black mb-3">4. Start querying your data</h3>
-                  <p className="text-black mb-4">Open a collaborative SQL editor right from your scratchpad to go from planning to execution</p>
+                  <h3 className="text-xl font-semibold text-black mb-3">3. Invite your data stakeholders</h3>
+                  <p className="text-black mb-4">Send the link to your data access portal to your partners, researchers, and LLM developers so they can request access to your data</p>
                 </li>
               </ol>
             </CardContent>
