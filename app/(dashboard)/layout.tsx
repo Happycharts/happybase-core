@@ -12,7 +12,6 @@ import { Menu } from "@/components/sidebar/menu"
 import { useSidebarToggle } from "@/app/hooks/use-sidebar-toggle"
 import { SidebarToggle } from "@/components/sidebar/sidebar-toggle"
 import Logo from "@/public/happybase.svg"
-import { VeltProvider, VeltComments, VeltCommentsSidebar, VeltSidebarButton, VeltCommentTool, VeltCursor  } from '@veltdev/react';
 
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans", weight: ["400", "700"] })
@@ -27,12 +26,6 @@ export default function RootLayout({
   if(!sidebar) return null;
 
   return (
-    <VeltProvider apiKey="gzMsfbG9JF8qkOB157aD">
-     <VeltComments />
-     <VeltCommentsSidebar />
-     <VeltSidebarButton />
-     <VeltCommentTool />
-     <VeltCursor />
     <html lang="en">
       <body className={`${inter.className} min-h-screen flex`}>
       <aside
@@ -76,6 +69,5 @@ export default function RootLayout({
         </main>
       </body>
     </html>
-    </VeltProvider>
   )
 }
