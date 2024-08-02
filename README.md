@@ -1,17 +1,20 @@
-## 😜 Happybase: Client-side data-sharing fit for security aware teams 
+## 😜 Happybase: Client-side data-sharing fit for security aware teams
+
 ![Happybase](./public/banner.png)
 
 *"Happybase stands firmly with the people of Occupied Palestine, as we have from the beginning. We are a community of technologists, designers, and developers who are committed to using our skills and talents to create a better world for all. 🇵🇸🇵🇸🇵🇸"*
 
-Welcome to Happybase, a fair-source data-sharing platform built to enable enterprise teams to build hosted data sharing portals using tools like Notion and Hex while monetzing their data via Stripe Connect. 
+Welcome to Happybase, a fair-source data-sharing platform built to enable enterprise teams to build hosted data sharing portals using tools like Notion and Hex while monetzing their data via Stripe Connect.
+
+<div style="position: relative; padding-bottom: calc(51.36054421768708% + 41px); height: 0; width: 100%;">
+  <iframe src="https://demo.arcade.software/SWLUeqXYA0BvNuKvSnoc?embed&show_copy_link=true" title="localhost:3000/home" frameborder="0" loading="lazy" webkitallowfullscreen mozallowfullscreen allowfullscreen allow="clipboard-write" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;color-scheme: light;"></iframe>
+</div>
 
 ### 🤔 Why tho?
 
 We built Happybase as a response to closed tools like [Prequel](https://www.prequel.co/) and [Census Embedded ETL](https://www.getcensus.com/embedded) that go so far as even requiring a direct and raw data connection to your data warehouse. We believe that data should be shared, but we aren't fans of the approach that allows any customer to run a `SELECT * FROM table` query against your data.
 
 Our approach stands out by using client-side data sharing and sementic layer tools which have built in security contexts such as Cube to enable data sharing without exposing your data to the world. By using a client-side data sharing approach along with JWT, we can ensure your ability to share data on your terms while still allowing your customers to access the data they need.
-
-<div style="position: relative; padding-bottom: calc(51.36054421768708% + 41px); height: 0; width: 100%;"><iframe src="https://demo.arcade.software/SWLUeqXYA0BvNuKvSnoc?embed&show_copy_link=true" title="localhost:3000/home" frameborder="0" loading="lazy" webkitallowfullscreen mozallowfullscreen allowfullscreen allow="clipboard-write" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;color-scheme: light;"></iframe></div>
 
 ### 🤓 How does it work?
 
@@ -29,7 +32,7 @@ To get started with Happybase, you'll need to install the following dependencies
 - [Pnpm](https://pnpm.io/)
 
 Once you have the dependencies installed, you can run the following commands to start the development server:
+
 ```bash
 pnpm install
 pnpm run dev
-```
