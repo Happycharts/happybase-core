@@ -4,7 +4,7 @@ import { createClient } from '@/app/utils/supabase/server';
 import { auth } from '@clerk/nextjs/server';
 
 export async function POST(request: NextRequest) {
-  const { appName, url } = await request.json();
+  const { appName, url, userName } = await request.json();
   const supabase = createClient();
   const { userId, orgId } = auth();
 
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   try {
     const { data, error } = await supabase
       .from('apps')
-      .insert({ name: appName, url, organization: orgId, creator_id: userId });
+      .insert({ name: appName, url, organization: orgId, creator_id: userId, creator_name: userName });
 
     if (error) {
       throw error;

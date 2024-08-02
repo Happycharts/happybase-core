@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { use, useState } from "react"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import Link from "next/link"
 import Image from "next/image"
@@ -10,6 +10,7 @@ import { Toast } from '@/components/ui/toast'
 import { useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { useOrganization } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs"
 
 const apps = [
   {
@@ -52,6 +53,7 @@ export default function AppsPage() {
     const { toast } = useToast()
     const [openDialogs, setOpenDialogs] = useState<DialogState>({})
     const org = useOrganization().organization?.id;
+    const userName = useUser().user?.fullName;
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, appName: string) => {
       e.preventDefault();
@@ -62,7 +64,7 @@ export default function AppsPage() {
         const response = await fetch('/api/apps/add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ appName, url }),
+          body: JSON.stringify({ appName, url, userName, }),
         });
 
         if (!response.ok) {

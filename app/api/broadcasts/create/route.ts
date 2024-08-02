@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { id, expiration, url, cubeUrl, fullName } = await request.json();
+  const { id, expiration, url, cubeUrl, fullName, appName } = await request.json();
 
   if (!id || !expiration || !url) {
     return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
@@ -63,7 +63,8 @@ export async function POST(request: NextRequest) {
         expiration_date: expirationDate.toISOString(),
         url: url,
         cube_url: cubeUrl,
-        creator_name: fullName
+        creator_name: fullName,
+        app: appName
       })
       .select()
       .single();
