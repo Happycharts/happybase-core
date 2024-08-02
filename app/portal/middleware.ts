@@ -7,7 +7,7 @@ import { createClient } from '@/app/utils/supabase/server'
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
   
-  if (path.startsWith('/broadcasts/')) {
+  if (path.startsWith('/portal/')) {
     const id = path.split('/')[2]
     const supabase = createClient()
 
@@ -33,5 +33,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/broadcasts/:path*',
+  matcher: '/portal/:path*',
 }
