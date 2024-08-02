@@ -5,10 +5,7 @@
 
 Welcome to Happybase, a fair-source data-sharing platform built to enable enterprise teams to build hosted data sharing portals using tools like Notion and Hex while monetzing their data via Stripe Connect. 
 
-<video width="100%" controls>
-  <source src="./public/demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+<video src="./public/demo.mp4" width="300" />
 
 ### 🤔 Why tho?
 
