@@ -5,7 +5,7 @@
 
 Welcome to Happybase, a fair-source data-sharing platform built to enable enterprise teams to build hosted data sharing portals using tools like Notion and Hex while monetzing their data via Stripe Connect. 
 
-[![Watch the video]()](./public/demo.mp4)
+![localhost_3000_home](https://github.com/user-attachments/assets/7f8540c7-47da-4c02-90fa-0519cf909c6d)
 
 ### 🤔 Why tho?
 
