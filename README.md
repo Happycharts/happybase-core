@@ -1,5 +1,5 @@
 ## 😜 Happybase: Client-side data-sharing fit for security aware teams 
-![Happybase](./public/header.png)
+![Happybase](./public/banner.png)
 
 *"Happybase stands firmly with the people of Occupied Palestine, as we have from the beginning. We are a community of technologists, designers, and developers who are committed to using our skills and talents to create a better world for all. 🇵🇸🇵🇸🇵🇸"*
 
