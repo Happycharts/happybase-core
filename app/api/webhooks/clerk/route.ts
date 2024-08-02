@@ -1,11 +1,36 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
-import { WebhookEvent } from '@clerk/nextjs/server'
+import { WebhookEvent, auth, clerkClient } from '@clerk/nextjs/server'
+import Stripe from 'stripe';
+import { createClient } from '@/app/utils/supabase/server';
+import { Analytics } from '@segment/analytics-node'
+const analytics = new Analytics({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY! });
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2023-08-16', // Use the latest API version
+});
 // Placeholder functions for each event type
 async function handleUserCreated(data: any) {
   console.log('User created:', data);
-  // Implement user creation logic here
+  analytics.identify({
+    userId: data.id,
+    traits: {
+      email: data.email_addresses[0].email_address,
+      name: data.first_name + ' ' + data.last_name,
+      createdAt: data.created_at,
+    },
+  });
+  analytics.track(
+    {
+      userId: data.id,
+      event: 'User Created',
+      properties: {
+        email: data.email_addresses[0].email_address,
+        name: data.first_name + ' ' + data.last_name,
+        createdAt: data.created_at,
+      },
+    }
+  )
 }
 
 async function handleOrganizationMembershipCreated(data: any) {
@@ -44,30 +69,18 @@ async function handleEmailCreated(data: any) {
 }
 
 async function handleOrganizationCreated(data: any) {
-    console.log('Organization created:', data);
-    
-    try {
-      const orgId = data.id;
-      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/trino/deploy`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ orgId }),
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const result = await response.json();
-      console.log('Trino deployment result:', result);
-    } catch (error) {
-      console.error('Error deploying Trino:', error);
-      // Handle the error (e.g., notify admin, log to error tracking service)
+  console.log('Organization created:', data);
+  analytics.track(
+    {
+      userId: data.id,
+      event: 'Organization Created',
+      properties: {
+        name: data.name,
+        createdAt: data.created_at,
+      },
     }
-  }
-
+  )
+}
 async function handleOrganizationUpdated(data: any) {
   console.log('Organization updated:', data);
   // Implement organization update logic here
@@ -80,10 +93,10 @@ async function handleOrganizationDeleted(data: any) {
 
 export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the endpoint
-  const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET
+  const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET
 
-  if (!WEBHOOK_SECRET) {
-    throw new Error('Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local')
+  if (!CLERK_WEBHOOK_SECRET) {
+    throw new Error('Please add CLERK_WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local')
   }
 
   // Get the headers
@@ -104,7 +117,7 @@ export async function POST(req: Request) {
   const body = JSON.stringify(payload);
 
   // Create a new Svix instance with your secret.
-  const wh = new Webhook(WEBHOOK_SECRET);
+  const wh = new Webhook(CLERK_WEBHOOK_SECRET);
 
   let evt: WebhookEvent
 

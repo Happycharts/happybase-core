@@ -6,16 +6,55 @@ import { useUser, useOrganization } from "@clerk/nextjs";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";  // Adjust the import path as needed
 import { Input } from '@/components/ui/input';
+import PaymentLinkModal from '@/components/payment-link'; // Adjust the import path as needed
+import { createClient } from '@/app/utils/supabase/client';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import MoneyInput from "@/components/ui/money-input";
+import { Form } from "@/components/ui/form";
+import * as z from "zod";
+import { AnalyticsBrowser } from '@segment/analytics-next'
+
+// Initialize Supabase client
+const supabase = createClient();
+
 
 export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [schedulingLink, setSchedulingLink] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const user = useUser();
   const firstName = user?.user?.firstName;
   const lastName = user?.user?.lastName;
   const email = user?.user?.primaryEmailAddress?.emailAddress;
   const orgName = useOrganization().organization?.name;
   const orgId = useOrganization().organization?.id;
+  
+  const analytics = AnalyticsBrowser.load({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY || '' });
+
+  analytics.group(orgId, {
+      name: orgName,
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+    }
+  );
+  analytics.identify(orgId, {
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+    }
+  );
+  analytics.track(
+    'Viewed Home Page',
+    {
+      orgId: orgId,
+      orgName: orgName,
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+    }
+  );
 
   const SkeletonContent = () => (
     <>
@@ -57,37 +96,6 @@ export default function HomePage() {
     </>
   );
 
-  const handleAddSchedulingLink = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/insert-link', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          organization: {
-            id: orgId,
-            name: orgName,
-          },
-          url: schedulingLink,
-        }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        alert('Scheduling link added successfully!');
-      } else {
-        alert(`Error: ${data.message}`);
-      }
-    } catch (error) {
-      console.error('Error adding scheduling link:', error);
-      alert('An error occurred while adding the scheduling link.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="container mx-auto p-6 bg-white min-h-screen">
       {loading ? (
@@ -112,23 +120,16 @@ export default function HomePage() {
                   </Button>
                 </li>
                 <li className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-semibold text-black mb-3">2. Add a scheduling link</h3>
-                  <p className="text-black mb-4">Provide a link so your data stakeholders can schedule consultations with you</p>
-                  <Input
-                    className="w-full mb-4"
-                    placeholder="Add your scheduling link"
-                    value={schedulingLink}
-                    onChange={(e) => setSchedulingLink(e.target.value)}
-                  />
+                  <h3 className="text-xl font-semibold text-black mb-3">2. Send us a message</h3>
+                  <p className="text-black mb-4">Open a line of communication on WhatsApp</p>
                   <Button
                     className="bg-black hover:bg-gray-800 text-white transition-colors duration-300"
-                    onClick={handleAddSchedulingLink}
-                  >
-                    Add your scheduling link
+                  >Open a chat
+                    <Link href="https://wa.me/18657763192" />
                   </Button>
                 </li>
                 <li className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-semibold text-black mb-3">3. Create a broadcast</h3>
+                  <h3 className="text-xl font-semibold text-black mb-3">3. Create a portal</h3>
                   <p className="text-black mb-4">Publish your tool so your partners and audience can learn about your data program</p>
                   <div className="flex items-center space-x-2">
                     <div style={{

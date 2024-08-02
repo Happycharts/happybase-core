@@ -15,11 +15,12 @@ import { toast, useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster";
 import Stripe from 'stripe';
 import { Input } from "@/components/ui/input";
+import { AnalyticsBrowser } from '@segment/analytics-next'
 
 type appData = {
   id: string;
   creator_id: string;
-  creator_name: string;
+  portal_manager: string;
   name: string;
   url: string; // Add the URL field to the appData type
 };
@@ -51,6 +52,7 @@ export default function Apps() {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2023-08-16',
   });
+  const analytics = AnalyticsBrowser.load({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY! });
 
   useEffect(() => {
     let isMounted = true;
@@ -75,6 +77,11 @@ export default function Apps() {
     };
 
     fetchApps();
+    analytics.track('Viewed Apps', {
+      userId: user?.id,
+      organizationId: organization?.id,
+      fullName: fullName,
+    });
 
     return () => {
       isMounted = false;
@@ -124,12 +131,20 @@ export default function Apps() {
         body: JSON.stringify({ orgId, email }),
       });
   
+      analytics.track('Broadcasted App', {
+        userId: user?.id,
+        organizationId: organization?.id,
+        fullName: fullName,
+        appName: appToBroadcast,
+        expiration: expiration,
+        url: url,
+      });
       if (!response.ok) {
         throw new Error('Failed to create merchant account');
       }
   
       // Proceed with the broadcast app logic
-      const broadcastResponse = await fetch('/api/broadcasts/create', {
+      const broadcastResponse = await fetch('/api/portals/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -223,7 +238,7 @@ export default function Apps() {
                       )}
                       <span className="font-medium">{app.name}</span>
                     </TableCell>
-                    <TableCell>{app.creator_name}</TableCell>
+                    <TableCell>{app.portal_manager}</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <input

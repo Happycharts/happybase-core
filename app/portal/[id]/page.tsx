@@ -106,7 +106,7 @@ export default function BroadcastPage() {
 
       const supabase = createClerkSupabaseClient()
       const { data, error } = await supabase
-        .from('broadcasts')
+        .from('portals')
         .select('*')
         .eq('id', id)
         .maybeSingle()

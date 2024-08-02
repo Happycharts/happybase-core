@@ -11,7 +11,7 @@ export async function DELETE(request: NextRequest) {
     try {
       const supabase = createClient();
       const { data, error } = await supabase
-        .from('broadcasts')
+        .from('portals')
         .select('*')
         .eq('id', id)
         .single();

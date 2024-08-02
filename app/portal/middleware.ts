@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
     const supabase = createClient()
 
     const { data: broadcast, error } = await supabase
-      .from('broadcasts')
+      .from('portals')
       .select('expiration_date')
       .eq('id', id)
       .single()
