@@ -15,6 +15,7 @@ import { toast, useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster";
 import Stripe from 'stripe';
 import { Input } from "@/components/ui/input";
+import { AnalyticsBrowser } from '@segment/analytics-next'
 
 type appData = {
   id: string;
@@ -51,6 +52,7 @@ export default function Apps() {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2023-08-16',
   });
+  const analytics = AnalyticsBrowser.load({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY! });
 
   useEffect(() => {
     let isMounted = true;
@@ -75,6 +77,11 @@ export default function Apps() {
     };
 
     fetchApps();
+    analytics.track('Viewed Apps', {
+      userId: user?.id,
+      organizationId: organization?.id,
+      fullName: fullName,
+    });
 
     return () => {
       isMounted = false;
@@ -124,6 +131,14 @@ export default function Apps() {
         body: JSON.stringify({ orgId, email }),
       });
   
+      analytics.track('Broadcasted App', {
+        userId: user?.id,
+        organizationId: organization?.id,
+        fullName: fullName,
+        appName: appToBroadcast,
+        expiration: expiration,
+        url: url,
+      });
       if (!response.ok) {
         throw new Error('Failed to create merchant account');
       }

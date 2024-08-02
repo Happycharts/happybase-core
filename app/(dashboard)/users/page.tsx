@@ -12,6 +12,8 @@ export default function OrgUsersPage() {
   const [users, setUsers] = useState<OrganizationMembershipResource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  
+
   useEffect(() => {
     let isMounted = true;
     const fetchUsers = async () => {

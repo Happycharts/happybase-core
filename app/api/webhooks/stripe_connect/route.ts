@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { clerkClient } from '@clerk/nextjs/server';
+import { Analytics } from '@segment/analytics-node'
+const analytics = new Analytics({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY! });
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-08-16',
@@ -25,8 +27,18 @@ export async function POST(request: Request) {
   // Handle the event
   switch (event.type as Stripe.Event.Type) {
     case 'account.updated':
-
-
+      const account = event.data.object as Stripe.Account;
+      analytics.track(
+        {
+          userId: account.id,
+          event: 'Account Updated',
+          properties: {
+            email: account.email,
+            name: account.company,
+            createdAt: account.created,
+          },
+        }
+      )
     case 'balance.available':
       break;
     case 'payment_intent.succeeded':

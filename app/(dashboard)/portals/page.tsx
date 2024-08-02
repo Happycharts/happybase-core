@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { toast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster";
 import { useUser, useClerk } from '@clerk/nextjs';
+import { AnalyticsBrowser } from '@segment/analytics-next'
 
 type PortalData = {
   id: string;
@@ -46,6 +47,8 @@ export default function Portals() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isStripeConnected, setIsStripeConnected] = useState(false);
   const [merchantData, setMerchantData] = useState<MerchantData | null>(null);
+  const analytics = AnalyticsBrowser.load({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY! });
+
 
   useEffect(() => {
     let isMounted = true;
@@ -83,6 +86,11 @@ export default function Portals() {
       } else if (isMounted) {
         setMerchantData(merchantData);
         setIsStripeConnected(!!merchantData?.onboarding_link);
+        analytics.track('Portal Deleted', {
+          userId: user.id,
+          organizationId: organization.id,
+          portalId: portalToDelete,
+        });
       }
   
       setIsLoading(false);

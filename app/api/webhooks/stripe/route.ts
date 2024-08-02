@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { clerkClient } from '@clerk/nextjs/server';
+import { Analytics } from '@segment/analytics-node'
+const analytics = new Analytics({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY! });
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-08-16',
@@ -34,6 +36,17 @@ export async function POST(request: Request) {
           }
         });
       }
+      analytics.track(
+        {
+          userId: customer.metadata.clerk_user_id,
+          event: 'Customer Created',
+          properties: {
+            email: customer.email,
+            name: customer.name,
+            createdAt: customer.created,
+          },
+        }
+      )
     case 'customer.updated':
       break;
     case 'payment_intent.succeeded':

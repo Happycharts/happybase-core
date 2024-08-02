@@ -3,6 +3,8 @@ import { headers } from 'next/headers'
 import { WebhookEvent, auth, clerkClient } from '@clerk/nextjs/server'
 import Stripe from 'stripe';
 import { createClient } from '@/app/utils/supabase/server';
+import { Analytics } from '@segment/analytics-node'
+const analytics = new Analytics({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY! });
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-08-16', // Use the latest API version
@@ -10,7 +12,25 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 // Placeholder functions for each event type
 async function handleUserCreated(data: any) {
   console.log('User created:', data);
-  // Implement user creation logic here
+  analytics.identify({
+    userId: data.id,
+    traits: {
+      email: data.email_addresses[0].email_address,
+      name: data.first_name + ' ' + data.last_name,
+      createdAt: data.created_at,
+    },
+  });
+  analytics.track(
+    {
+      userId: data.id,
+      event: 'User Created',
+      properties: {
+        email: data.email_addresses[0].email_address,
+        name: data.first_name + ' ' + data.last_name,
+        createdAt: data.created_at,
+      },
+    }
+  )
 }
 
 async function handleOrganizationMembershipCreated(data: any) {
@@ -50,6 +70,16 @@ async function handleEmailCreated(data: any) {
 
 async function handleOrganizationCreated(data: any) {
   console.log('Organization created:', data);
+  analytics.track(
+    {
+      userId: data.id,
+      event: 'Organization Created',
+      properties: {
+        name: data.name,
+        createdAt: data.created_at,
+      },
+    }
+  )
 }
 async function handleOrganizationUpdated(data: any) {
   console.log('Organization updated:', data);

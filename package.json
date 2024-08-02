@@ -65,6 +65,8 @@
     "@radix-ui/react-tooltip": "^1.1.2",
     "@radix-ui/themes": "^3.1.1",
     "@react-email/components": "^0.0.22",
+    "@segment/analytics-next": "^1.72.1",
+    "@segment/analytics-node": "^2.1.2",
     "@stripe/react-connect-js": "^3.3.12",
     "@supabase/ssr": "^0.4.0",
     "@supabase/supabase-js": "^2.44.4",

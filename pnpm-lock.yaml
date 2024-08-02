@@ -164,6 +164,12 @@ dependencies:
   '@react-email/components':
     specifier: ^0.0.22
     version: 0.0.22(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
+  '@segment/analytics-next':
+    specifier: ^1.72.1
+    version: 1.72.1
+  '@segment/analytics-node':
+    specifier: ^2.1.2
+    version: 2.1.2
   '@stripe/react-connect-js':
     specifier: ^3.3.12
     version: 3.3.12(@stripe/connect-js@3.3.12)(react-dom@18.3.1)(react@18.3.1)
@@ -3648,6 +3654,18 @@ packages:
     engines: {node: '>=10.3.0'}
     dev: false
 
+  /@lukeed/csprng@1.1.0:
+    resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
+    engines: {node: '>=8'}
+    dev: false
+
+  /@lukeed/uuid@2.0.1:
+    resolution: {integrity: sha512-qC72D4+CDdjGqJvkFMMEAtancHUQ7/d/tAiHf64z8MopFDmcrtbcJuerDtFceuAfQJ2pDSfCKCtbqoGBNnwg0w==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@lukeed/csprng': 1.1.0
+    dev: false
+
   /@microsoft/fetch-event-source@2.0.1:
     resolution: {integrity: sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==}
     dev: false
@@ -6698,6 +6716,78 @@ packages:
       '@daybrush/utils': 1.13.0
     dev: false
 
+  /@segment/analytics-core@1.6.0:
+    resolution: {integrity: sha512-bn9X++IScUfpT7aJGjKU/yJAu/Ko2sYD6HsKA70Z2560E89x30pqgqboVKY8kootvQnT4UKCJiUr5NDMgjmWdQ==}
+    dependencies:
+      '@lukeed/uuid': 2.0.1
+      '@segment/analytics-generic-utils': 1.2.0
+      dset: 3.1.3
+      tslib: 2.6.3
+    dev: false
+
+  /@segment/analytics-generic-utils@1.2.0:
+    resolution: {integrity: sha512-DfnW6mW3YQOLlDQQdR89k4EqfHb0g/3XvBXkovH1FstUN93eL1kfW9CsDcVQyH3bAC5ZsFyjA/o/1Q2j0QeoWw==}
+    dependencies:
+      tslib: 2.6.3
+    dev: false
+
+  /@segment/analytics-next@1.72.1:
+    resolution: {integrity: sha512-OeCe/jMAWxC5a1fY8RRszIzG7zevmkRHEaUQZMXskPFPWu2fB9r8A/JeZtoX9+kKlNg2SMMAdsnIRxsvaHIkMA==}
+    dependencies:
+      '@lukeed/uuid': 2.0.1
+      '@segment/analytics-core': 1.6.0
+      '@segment/analytics-generic-utils': 1.2.0
+      '@segment/analytics.js-video-plugins': 0.2.1
+      '@segment/facade': 3.4.10
+      dset: 3.1.3
+      js-cookie: 3.0.1
+      node-fetch: 2.7.0
+      tslib: 2.6.3
+      unfetch: 4.2.0
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /@segment/analytics-node@2.1.2:
+    resolution: {integrity: sha512-CIqWH5G0pB/LAFAZEZtntAxujiYIpdk0F+YGhfM6N/qt4/VLWjFcd4VZXVLW7xqaxig64UKWGQhe8bszXDRXXw==}
+    engines: {node: '>=18'}
+    dependencies:
+      '@lukeed/uuid': 2.0.1
+      '@segment/analytics-core': 1.6.0
+      '@segment/analytics-generic-utils': 1.2.0
+      buffer: 6.0.3
+      jose: 5.6.3
+      node-fetch: 2.7.0
+      tslib: 2.6.3
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /@segment/analytics.js-video-plugins@0.2.1:
+    resolution: {integrity: sha512-lZwCyEXT4aaHBLNK433okEKdxGAuyrVmop4BpQqQSJuRz0DglPZgd9B/XjiiWs1UyOankg2aNYMN3VcS8t4eSQ==}
+    dependencies:
+      unfetch: 3.1.2
+    dev: false
+
+  /@segment/facade@3.4.10:
+    resolution: {integrity: sha512-xVQBbB/lNvk/u8+ey0kC/+g8pT3l0gCT8O2y9Z+StMMn3KAFAQ9w8xfgef67tJybktOKKU7pQGRPolRM1i1pdA==}
+    dependencies:
+      '@segment/isodate-traverse': 1.1.1
+      inherits: 2.0.4
+      new-date: 1.0.3
+      obj-case: 0.2.1
+    dev: false
+
+  /@segment/isodate-traverse@1.1.1:
+    resolution: {integrity: sha512-+G6e1SgAUkcq0EDMi+SRLfT48TNlLPF3QnSgFGVs0V9F3o3fq/woQ2rHFlW20W0yy5NnCUH0QGU3Am2rZy/E3w==}
+    dependencies:
+      '@segment/isodate': 1.0.3
+    dev: false
+
+  /@segment/isodate@1.0.3:
+    resolution: {integrity: sha512-BtanDuvJqnACFkeeYje7pWULVv8RgZaqKHWwGFnL/g/TH/CcZjkIVTfGDp/MAxmilYHUkrX70SqwnYSTNEaN7A==}
+    dev: false
+
   /@selderee/plugin-htmlparser2@0.11.0:
     resolution: {integrity: sha512-P33hHGdldxGabLFjPPpaTxVolMrzrcegejx+0GxjrIb9Zv48D8yAIA/QTDR2dFl7Uz7urX8aX6+5bCZslr+gWQ==}
     dependencies:
@@ -9630,6 +9720,13 @@ packages:
       isarray: 1.0.0
     dev: false
 
+  /buffer@6.0.3:
+    resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
+    dependencies:
+      base64-js: 1.5.1
+      ieee754: 1.2.1
+    dev: false
+
   /builtin-modules@3.0.0:
     resolution: {integrity: sha512-hMIeU4K2ilbXV6Uv93ZZ0Avg/M91RaKXucQ+4me2Do1txxBDyDZWCBa5bJSLqoNTRpXTLwEzIk1KmloenDDjhg==}
     engines: {node: '>=6'}
@@ -10567,6 +10664,11 @@ packages:
     dependencies:
       no-case: 3.0.4
       tslib: 2.6.3
+    dev: false
+
+  /dset@3.1.3:
+    resolution: {integrity: sha512-20TuZZHCEZ2O71q9/+8BwKwZ0QtD9D8ObhrihJPr+vLLYlSuAU3/zL4cSlgbfeoGHTjCSJBa7NGcrF9/Bx/WJQ==}
+    engines: {node: '>=4'}
     dev: false
 
   /duplexify@4.1.3:
@@ -12184,6 +12286,10 @@ packages:
     resolution: {integrity: sha512-4vf7I2LYV/HaWerSo3XmlMkp5eZ83i+/CDluXi/IGTs/O1sejBNhTtnxzmRZfvOUqj7lZjqHkeTvpgSFDlWZTg==}
     dev: false
 
+  /ieee754@1.2.1:
+    resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
+    dev: false
+
   /iframe-resizer@4.4.5:
     resolution: {integrity: sha512-U8bCywf/Gh07O69RXo6dXAzTtODQrxaHGHRI7Nt4ipXsuq6EMxVsOP/jjaP43YtXz/ibESS0uSVDN3sOGCzSmw==}
     engines: {node: '>=0.8.0'}
@@ -13182,6 +13288,11 @@ packages:
       glob: 10.4.5
       js-cookie: 3.0.5
       nopt: 7.2.1
+    dev: false
+
+  /js-cookie@3.0.1:
+    resolution: {integrity: sha512-+0rgsUXZu4ncpPxRL+lNEptWMOWl9etvPHc/koSRp6MPwpRYAhmk0dUG00J4bxVV3r9uUzfo24wW0knS07SKSw==}
+    engines: {node: '>=12'}
     dev: false
 
   /js-cookie@3.0.5:
@@ -14328,6 +14439,12 @@ packages:
     engines: {node: '>= 0.4.0'}
     dev: false
 
+  /new-date@1.0.3:
+    resolution: {integrity: sha512-0fsVvQPbo2I18DT2zVHpezmeeNYV2JaJSrseiHLc17GNOxJzUdx5mvSigPu8LtIfZSij5i1wXnXFspEs2CD6hA==}
+    dependencies:
+      '@segment/isodate': 1.0.3
+    dev: false
+
   /next-themes@0.3.0(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-/QHIrsYpd6Kfk7xakK4svpDI5mmXP0gfvCoJdGpZQ2TOrQZmsW0QxjaiLn8wbIKjtm4BTSqLoix4lxYYOnLJ/w==}
     peerDependencies:
@@ -14585,6 +14702,10 @@ packages:
 
   /oauth-sign@0.9.0:
     resolution: {integrity: sha512-fexhUFFPTGV8ybAtSIGbV6gOkSv8UtRbDBnAyLQw4QPKkgNlsH2ByPGtMUqdWkos6YCRmAqViwgZrJc/mRDzZQ==}
+    dev: false
+
+  /obj-case@0.2.1:
+    resolution: {integrity: sha512-PquYBBTy+Y6Ob/O2574XHhDtHJlV1cJHMCgW+rDRc9J5hhmRelJB3k5dTK/3cVmFVtzvAKuENeuLpoyTzMzkOg==}
     dev: false
 
   /object-assign@4.1.1:
@@ -17551,6 +17672,14 @@ packages:
 
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+
+  /unfetch@3.1.2:
+    resolution: {integrity: sha512-L0qrK7ZeAudGiKYw6nzFjnJ2D5WHblUBwmHIqtPS6oKUd+Hcpk7/hKsSmcHsTlpd1TbTNsiRBUKRq3bHLNIqIw==}
+    dev: false
+
+  /unfetch@4.2.0:
+    resolution: {integrity: sha512-F9p7yYCn6cIW9El1zi0HI6vqpeIvBsr3dSuRO6Xuppb1u5rXpCPmMvLSyECLhybr9isec8Ohl0hPekMVrEinDA==}
+    dev: false
 
   /unicode-canonical-property-names-ecmascript@2.0.0:
     resolution: {integrity: sha512-yY5PpDlfVIU5+y/BSCxAJRBIS1Zc2dDG3Ujq+sR0U+JjUevW2JhocOF+soROYDSaAezOzOKuyyixhD6mBknSmQ==}

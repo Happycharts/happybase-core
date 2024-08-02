@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import MoneyInput from "@/components/ui/money-input";
 import { Form } from "@/components/ui/form";
 import * as z from "zod";
+import { AnalyticsBrowser } from '@segment/analytics-next'
 
 // Initialize Supabase client
 const supabase = createClient();
@@ -28,6 +29,32 @@ export default function HomePage() {
   const email = user?.user?.primaryEmailAddress?.emailAddress;
   const orgName = useOrganization().organization?.name;
   const orgId = useOrganization().organization?.id;
+  
+  const analytics = AnalyticsBrowser.load({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY || '' });
+
+  analytics.group(orgId, {
+      name: orgName,
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+    }
+  );
+  analytics.identify(orgId, {
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+    }
+  );
+  analytics.track(
+    'Viewed Home Page',
+    {
+      orgId: orgId,
+      orgName: orgName,
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+    }
+  );
 
   const SkeletonContent = () => (
     <>

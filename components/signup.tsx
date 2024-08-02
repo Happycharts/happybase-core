@@ -7,6 +7,7 @@ import { cn } from "@/app/utils/utils"
 import Logo from "@/public/happybase.svg"
 import { Shield, Zap, TrendingUp } from "lucide-react"
 import { ReactNode } from 'react';
+import { AnalyticsBrowser } from '@segment/analytics-next'
 
 export const metadata: Metadata = {
   title: "Authentication",
@@ -18,6 +19,8 @@ interface FeatureItemProps {
   title: string;
   description: string;
 }
+
+const analytics = AnalyticsBrowser.load({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY! });
 
 export default function AuthenticationPage() {
   return (

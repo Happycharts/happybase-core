@@ -8,6 +8,8 @@ import Logo from "@/public/happybase.svg"
 import { Shield, Zap, TrendingUp } from "lucide-react"
 import { ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { AnalyticsBrowser } from '@segment/analytics-next'
+import { useUser } from '@clerk/nextjs';
 
 export const metadata: Metadata = {
   title: "Authentication",
@@ -23,7 +25,13 @@ interface FeatureItemProps {
 function CustomCreateOrganization() {
   const { organization, isLoaded } = useOrganization();
   const router = useRouter();
+  const analytics = AnalyticsBrowser.load({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY! });
+  const { user } = useUser();
 
+  analytics.identify(user?.id!, {
+    name: user?.fullName,
+    email: user?.emailAddresses[0]?.emailAddress,
+  });
   useEffect(() => {
     if (isLoaded && organization) {
       // Organization has been created, call the API
@@ -55,6 +63,8 @@ function CustomCreateOrganization() {
       });
     }
   }, [isLoaded, organization, router]);
+
+  
 
   return (
     <CreateOrganization path="/auth/create-organization" />
