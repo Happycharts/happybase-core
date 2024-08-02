@@ -1,7 +1,11 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
-import { WebhookEvent } from '@clerk/nextjs/server'
+import { WebhookEvent, auth, } from '@clerk/nextjs/server'
+import Stripe from 'stripe';
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2023-08-16', // Use the latest API version
+});
 // Placeholder functions for each event type
 async function handleUserCreated(data: any) {
   console.log('User created:', data);
@@ -44,29 +48,30 @@ async function handleEmailCreated(data: any) {
 }
 
 async function handleOrganizationCreated(data: any) {
-    console.log('Organization created:', data);
-    
-    try {
-      const orgId = data.id;
-      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/trino/deploy`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ orgId }),
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const result = await response.json();
-      console.log('Trino deployment result:', result);
-    } catch (error) {
-      console.error('Error deploying Trino:', error);
-      // Handle the error (e.g., notify admin, log to error tracking service)
-    }
+  console.log('Organization created:', data);
+
+  try {
+    // Create a new customer in Stripe
+    const customer = await stripe.customers.create({
+      name: data.name,
+      metadata: {
+        clerk_organization_id: data.id,
+        clerk_organization_name: data.name,
+        clerk_organization_image_url: data.imageUrl,
+        clerk_organization_email: data.email,
+        clerk_organization_created_at: data.createdAt,
+      },
+    });
+
+    console.log('Stripe customer created:', customer.id);
+
+    // Here you might want to store the Stripe customer ID in your database
+    // associated with the Clerk organization ID for future reference
+
+  } catch (error) {
+    console.error('Error creating Stripe customer:', error);
   }
+}
 
 async function handleOrganizationUpdated(data: any) {
   console.log('Organization updated:', data);
