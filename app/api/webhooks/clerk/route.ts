@@ -36,6 +36,17 @@ async function handleUserCreated(data: any) {
 async function handleOrganizationMembershipCreated(data: any) {
   console.log('Organization membership created:', data);
   // Implement organization membership creation logic here
+  analytics.track(
+    {
+      userId: data.id,
+      event: 'Organization Membership Created',
+      properties: {
+        email: data.email_addresses[0].email_address,
+        name: data.first_name + ' ' + data.last_name,
+        createdAt: data.created_at,
+      },
+    }
+  )
 }
 
 async function handleUserUpdated(data: any) {
@@ -56,6 +67,17 @@ async function handleOrganizationMembershipUpdated(data: any) {
 async function handleUserDeleted(data: any) {
   console.log('User deleted:', data);
   // Implement user deletion logic here
+  analytics.track(
+    {
+      userId: data.id,
+      event: 'User Deleted',
+      properties: {
+        email: data.email_addresses[0].email_address,
+        name: data.first_name + ' ' + data.last_name,
+        createdAt: data.created_at,
+      },
+    }
+  )
 }
 
 async function handleUserCreatedAtEdge(data: any) {
