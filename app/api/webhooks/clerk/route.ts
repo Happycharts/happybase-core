@@ -1,7 +1,8 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
-import { WebhookEvent, auth, } from '@clerk/nextjs/server'
+import { WebhookEvent, auth, clerkClient } from '@clerk/nextjs/server'
 import Stripe from 'stripe';
+import { createClient } from '@/app/utils/supabase/server';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-08-16', // Use the latest API version
@@ -49,30 +50,7 @@ async function handleEmailCreated(data: any) {
 
 async function handleOrganizationCreated(data: any) {
   console.log('Organization created:', data);
-
-  try {
-    // Create a new customer in Stripe
-    const customer = await stripe.customers.create({
-      name: data.name,
-      metadata: {
-        clerk_organization_id: data.id,
-        clerk_organization_name: data.name,
-        clerk_organization_image_url: data.imageUrl,
-        clerk_organization_email: data.email,
-        clerk_organization_created_at: data.createdAt,
-      },
-    });
-
-    console.log('Stripe customer created:', customer.id);
-
-    // Here you might want to store the Stripe customer ID in your database
-    // associated with the Clerk organization ID for future reference
-
-  } catch (error) {
-    console.error('Error creating Stripe customer:', error);
-  }
 }
-
 async function handleOrganizationUpdated(data: any) {
   console.log('Organization updated:', data);
   // Implement organization update logic here

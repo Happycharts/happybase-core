@@ -24,7 +24,7 @@ type BroadcastData = {
 type MerchantData = {
   id: string;
   organization: string;
-  onboarding_link: string;
+  onboarding_link: string | null;
 };
 
 const appLogos = {
@@ -45,6 +45,7 @@ export default function Broadcasts() {
   const { session } = useClerk();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isStripeConnected, setIsStripeConnected] = useState(false);
+  const [merchantData, setMerchantData] = useState<MerchantData | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -78,11 +79,19 @@ export default function Broadcasts() {
         .select('*')
         .eq('organization_id', organization.id)
         .single();
-  
-      if (stripeError) {
-        console.error("Error fetching Stripe connection status:", stripeError);
+
+        const { data: merchantData, error: merchantError } = await supabase
+        .from('merchants')
+        .select('*')
+        .eq('organization', organization.id)
+        .single();
+
+
+      if (merchantError) {
+        console.error("Error fetching merchant data:", merchantError);
       } else if (isMounted) {
-        setIsStripeConnected(!!stripeData);
+        setMerchantData(merchantData);
+        setIsStripeConnected(!!merchantData?.onboarding_link);
       }
   
       setIsLoading(false);
@@ -128,8 +137,8 @@ export default function Broadcasts() {
     }
   };
 
-  const stripeConnectUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_Qa1YXbHMD2SL28qGP1igjAmJyc3oeq6W&scope=read_write&redirect_uri=https://app.happybase.co/broadcasts`;
-
+  const stripeConnectUrl = merchantData?.onboarding_link || `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_Qa1YXbHMD2SL28qGP1igjAmJyc3oeq6W&scope=read_write&redirect_uri=https://app.happybase.co/broadcasts`;
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="shadow-lg">
@@ -170,25 +179,25 @@ export default function Broadcasts() {
                     </TableCell>
                     <TableCell>{broadcast.creator_name}</TableCell>
                     <TableCell>
-                      {isAdmin ? (
-                        <Link href={stripeConnectUrl}>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            disabled={isStripeConnected}
-                            className="flex items-center space-x-2"
-                          >
-                            <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
-                            <span>{isStripeConnected ? 'Connected to Stripe' : 'Connect with Stripe'}</span>
-                          </Button>
-                        </Link>
-                      ) : (
-                        <Button variant="outline" size="sm" disabled className="flex items-center space-x-2">
+                    {isAdmin ? (
+                      <Link href={stripeConnectUrl}>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          disabled={isStripeConnected}
+                          className="flex items-center space-x-2"
+                        >
                           <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
-                          <span>Connect with Stripe</span>
+                          <span>{isStripeConnected ? 'Connected to Stripe' : 'Connect with Stripe'}</span>
                         </Button>
-                      )}
-                    </TableCell>
+                      </Link>
+                    ) : (
+                      <Button variant="outline" size="sm" disabled className="flex items-center space-x-2">
+                        <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
+                        <span>Connect with Stripe</span>
+                      </Button>
+                    )}
+                  </TableCell>
                     <TableCell>
                       <TooltipProvider>
                         <Tooltip>

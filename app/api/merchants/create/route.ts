@@ -1,19 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/app/utils/supabase/server';
 import Stripe from 'stripe';
+import { auth, clerkClient } from '@clerk/nextjs/server';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-08-16',
 });
 
 export async function POST(request: NextRequest) {
-  const { orgId, email } = await request.json();
+  const { orgId, name, website } = await request.json();
 
-  if (!orgId || !email) {
+  if (!orgId || !name || !website) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
   try {
+    const { userId } = auth();
+    const user = await clerkClient.users.getUser(userId!);
     const supabase = createClient();
 
     // Check if a merchant account already exists for the user's OrgId
@@ -30,15 +33,20 @@ export async function POST(request: NextRequest) {
     if (!merchantData) {
       // If no merchant account exists, create a Stripe Connect Account
       const account = await stripe.accounts.create({
+        country: 'US',
+        email: user.emailAddresses[0].emailAddress,
+        business_profile: {
+          name: name,
+          url: website,
+        },
+        business_type: 'company',
         type: 'express',
-        country: 'US', // Replace with the appropriate country code
-        email: email,
       });
 
       const accountLink = await stripe.accountLinks.create({
         account: account.id,
-        refresh_url: 'https://app.happybase.co/reauth',
-        return_url: 'https://app.happybase.co/onboarding-success',
+        refresh_url: 'https://app.happybase.co/expired-link',
+        return_url: 'https://app.happybase.co/home',
         type: 'account_onboarding',
       });
 
@@ -49,6 +57,11 @@ export async function POST(request: NextRequest) {
           {
             id: account.id,
             organization: orgId,
+            url: account.business_profile!.url,
+            email: account.email,
+            company: account.business_profile?.name,
+            first_name: user.firstName,
+            last_name: user.lastName,
             onboarding_link: accountLink.url,
             revenue: null,
             clicks: null,
@@ -58,9 +71,29 @@ export async function POST(request: NextRequest) {
       if (insertError) {
         throw new Error('Error inserting merchant account: ' + insertError.message);
       }
+
+      console.log('Stripe account created:', account.id);
+      console.log('Stripe account link created:', accountLink.url);
+
+      const response = NextResponse.json({
+        message: 'Merchant account created successfully',
+        accountId: account.id,
+        onboardingLink: accountLink.url,
+      }, { status: 200 });
+
+      // Set a cookie with the account link
+      response.cookies.set('stripeAccountLink', accountLink.url, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 5, // 5 minutes
+        path: '/',
+      });
+
+      return response;
     }
 
-    return NextResponse.json({ message: 'Merchant account created or already exists' }, { status: 200 });
+    return NextResponse.json({ message: 'Merchant account already exists' }, { status: 200 });
   } catch (error) {
     console.error('Error creating merchant account:', error);
     return NextResponse.json({ error: 'Failed to create merchant account' }, { status: 500 });
