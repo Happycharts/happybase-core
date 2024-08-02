@@ -102,7 +102,34 @@ async function handleOrganizationCreated(data: any) {
       },
     }
   )
-}
+  
+  const stripe = require('stripe')('sk_test_51Pcn4rRoqPQJF71ALzpSkFCm3GOnDu2YSZHe3DKnNyw8gAHnfo04QoJXi7Kq51kFSDc8IJrMogmLkKvSBksYC9Ol00MAbOy2v8');
+  const account = await stripe.accounts.create
+(
+{
+    type: 'express',
+    country: 'US',
+    email: data.email_addresses[0].email_address,
+    capabilities: {
+      card_payments: { requested: true },
+      transfers: { requested: true },
+    },
+  }
+);
+
+const supabase = createClient();
+
+const event = await supabase
+  .from('merchants')
+  .insert({
+    id: account.id,
+    first_name: data.first_name,
+    last_name: data.last_name,
+    email: data.email_addresses[0].email_address,
+    created_at: data.created_at,
+    organizagion:  data.organization_memberships[0].organization.name,
+  })
+  .select();
 async function handleOrganizationUpdated(data: any) {
   console.log('Organization updated:', data);
   // Implement organization update logic here
@@ -113,7 +140,7 @@ async function handleOrganizationDeleted(data: any) {
   // Implement organization deletion logic here
 }
 
-export async function POST(req: Request) {
+async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the endpoint
   const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET
 
@@ -199,4 +226,5 @@ export async function POST(req: Request) {
   console.log('Webhook body:', body)
 
   return new Response('', { status: 200 })
+  }
 }

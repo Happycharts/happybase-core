@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { useUser, useOrganization } from "@clerk/nextjs";
@@ -14,22 +14,33 @@ import MoneyInput from "@/components/ui/money-input";
 import { Form } from "@/components/ui/form";
 import * as z from "zod";
 import { AnalyticsBrowser } from '@segment/analytics-next'
-
+import { useClerk } from "@clerk/nextjs";
 // Initialize Supabase client
-const supabase = createClient();
 
+type MerchantData = {
+  id: string;
+  organization: string;
+  onboarding_link: string | null;
+};
 
 export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [schedulingLink, setSchedulingLink] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const user = useUser();
+  const { organization, membership } = useOrganization();
   const firstName = user?.user?.firstName;
   const lastName = user?.user?.lastName;
   const email = user?.user?.primaryEmailAddress?.emailAddress;
   const orgName = useOrganization().organization?.name;
   const orgId = useOrganization().organization?.id;
-  
+  const { session } = useClerk();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isStripeConnected, setIsStripeConnected] = useState(false);
+  const [merchantData, setMerchantData] = useState<MerchantData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const supabase = createClient();
   const analytics = AnalyticsBrowser.load({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY || '' });
 
   analytics.group(orgId, {
@@ -55,6 +66,48 @@ export default function HomePage() {
       lastName: lastName,
     }
   );
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchDataAndCheckAdmin = async () => {
+      if (!user?.user?.id || !organization?.id) return;
+  
+      setIsLoading(true);
+  
+
+      const adminStatus = checkIfUserIsAdmin();
+      if (isMounted) {
+        setIsAdmin(adminStatus);
+      }
+  
+      const { data: merchantData, error: merchantError } = await supabase
+        .from('merchants')
+        .select('*')
+        .eq('organization', organization.id)
+        .single();
+
+      if (merchantError) {
+        console.error("Error fetching merchant data:", merchantError);
+      } else if (isMounted) {
+        setMerchantData(merchantData);
+        setIsStripeConnected(!!merchantData?.onboarding_link);
+      }
+  
+      setIsLoading(false);
+    };
+  
+    fetchDataAndCheckAdmin();
+  
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.user?.id, organization?.id, membership]);
+
+  function checkIfUserIsAdmin(): boolean {
+    if (!membership) return false;
+    console.log("User role:", membership.role);
+    return membership.role === 'org:admin' || membership.role === 'admin';
+  }
 
   const SkeletonContent = () => (
     <>
@@ -96,6 +149,9 @@ export default function HomePage() {
     </>
   );
 
+  const stripeConnectUrl = merchantData?.onboarding_link || `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_Qa1YXbHMD2SL28qGP1igjAmJyc3oeq6W&scope=read_write&redirect_uri=https://app.happybase.co/portals`;
+
+
   return (
     <div className="container mx-auto p-6 bg-white min-h-screen">
       {loading ? (
@@ -108,8 +164,29 @@ export default function HomePage() {
               <h2 className="text-4xl font-bold text-black mb-6 text-left">Welcome to Happybase!</h2>
               <h2 className="text-2xl font-bold text-black mb-6 text-left">Getting Started</h2>
               <p className="text-lg text-black mb-6 text-left">Follow these steps to get set up and start using our platform effectively.</p>
-
               <ol className="space-y-6">
+                <li className="bg-gray-50 p-6 rounded-lg">
+                  <h3 className="text-xl font-semibold text-black mb-3">1. Connect with Stripe</h3>
+                  <p className="text-black mb-4">Connect a Stripe account so you can start setting rates for your data access</p>
+                  {isAdmin ? (
+                      <Link href={stripeConnectUrl}>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          disabled={isStripeConnected}
+                          className="flex items-center space-x-2"
+                        >
+                          <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
+                          <span>{isStripeConnected ? 'Connected to Stripe' : 'Connect with Stripe'}</span>
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button variant="outline" size="sm" disabled className="flex items-center space-x-2">
+                        <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
+                        <span>Connect with Stripe</span>
+                      </Button>
+                    )}
+                </li>
                 <li className="bg-gray-50 p-6 rounded-lg">
                   <h3 className="text-xl font-semibold text-black mb-3">1. Connect your first tool</h3>
                   <p className="text-black mb-4">Connect a tool so you can start centralizing your semantic layer.</p>
@@ -117,15 +194,6 @@ export default function HomePage() {
                     <Link href="/apps/add">
                       Add a tool
                     </Link>
-                  </Button>
-                </li>
-                <li className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-semibold text-black mb-3">2. Send us a message</h3>
-                  <p className="text-black mb-4">Open a line of communication on WhatsApp</p>
-                  <Button
-                    className="bg-black hover:bg-gray-800 text-white transition-colors duration-300"
-                  >Open a chat
-                    <Link href="https://wa.me/18657763192" />
                   </Button>
                 </li>
                 <li className="bg-gray-50 p-6 rounded-lg">
