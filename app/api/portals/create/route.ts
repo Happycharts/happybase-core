@@ -56,14 +56,14 @@ export async function POST(request: NextRequest) {
 
     // Create broadcast record
     const { data: broadcast, error: broadcastError } = await supabase
-      .from('broadcasts')
+      .from('portals')
       .insert({
         id: id,
         creator_id: userId,
         expiration_date: expirationDate.toISOString(),
         url: url,
         cube_url: cubeUrl,
-        creator_name: fullName,
+        portal_manager: fullName,
         app: appName
       })
       .select()

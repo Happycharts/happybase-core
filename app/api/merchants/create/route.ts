@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const { userId } = auth();
-    const user = await clerkClient.users.getUser(userId!);
+    const user = await clerkClient().users.getUser(userId!);
     const supabase = createClient();
 
     // Check if a merchant account already exists for the user's OrgId

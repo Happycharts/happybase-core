@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
       const customer = event.data.object as Stripe.Customer;
       if (customer.metadata.clerk_user_id) {
-        await clerkClient.users.updateUserMetadata(customer.metadata.clerk_user_id, {
+        await clerkClient().users.updateUserMetadata(customer.metadata.clerk_user_id, {
           privateMetadata: {
             stripeCustomerId: customer.id
           }

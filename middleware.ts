@@ -19,7 +19,8 @@ const allowedRoutes = [
   '/query',
   '/auth',
   '/api/',
-  '/broadcasts',
+  '/portals',
+  '/billing',
   '/webhooks/',
   '/portal',
   '/apps',
@@ -29,6 +30,7 @@ const allowedRoutes = [
 
 const allowedOrigins = [
   'http://localhost:3000',
+  'https://wa.me/18657763192',
   'https://app.happybase.co',
   'https://connect.stripe.com'
 ];
@@ -70,23 +72,23 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(new URL('/home', nextRequest.url));
   }
 
-  if (!isPublicRoute(req)) {
-    const { userId } = auth();
+  // if (!isPublicRoute(req)) {
+  //   const { userId } = auth();
 
-    if (userId) {
-      const user = await clerkClient.users.getUser(userId);
-      const stripeCustomerId = user.privateMetadata.stripeCustomerId;
+  //   if (userId) {
+  //     const user = await clerkClient().users.getUser(userId);
+  //     const stripeCustomerId = user.privateMetadata.stripeCustomerId;
 
-      if (!stripeCustomerId) {
-        return NextResponse.redirect('https://buy.stripe.com/test_aEU8zLaUR9uW8aQ4gh');
-      }
+  //     if (!stripeCustomerId) {
+  //       return NextResponse.redirect('https://buy.stripe.com/test_aEU8zLaUR9uW8aQ4gh');
+  //     }
 
-      // Return private metadata if needed
-      return NextResponse.json(user.privateMetadata);
-    }
+  //     // Return private metadata if needed
+  //     return NextResponse.json(user.privateMetadata);
+  //   }
 
-    auth().protect();
-  }
+  //   auth().protect();
+  // }
 
   const response = NextResponse.next();
   return corsMiddleware(nextRequest, response);

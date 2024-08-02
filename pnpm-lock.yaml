@@ -50,6 +50,9 @@ dependencies:
   '@codemirror/view':
     specifier: ^6.28.6
     version: 6.28.6
+  '@heroicons/react':
+    specifier: ^2.1.5
+    version: 2.1.5(react@18.3.1)
   '@hookform/resolvers':
     specifier: ^3.9.0
     version: 3.9.0(react-hook-form@7.52.1)
@@ -161,6 +164,9 @@ dependencies:
   '@react-email/components':
     specifier: ^0.0.22
     version: 0.0.22(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
+  '@stripe/react-connect-js':
+    specifier: ^3.3.12
+    version: 3.3.12(@stripe/connect-js@3.3.12)(react-dom@18.3.1)(react@18.3.1)
   '@supabase/ssr':
     specifier: ^0.4.0
     version: 0.4.0(@supabase/supabase-js@2.44.4)
@@ -311,6 +317,9 @@ dependencies:
   pg:
     specifier: ^8.12.0
     version: 8.12.0
+  pure:
+    specifier: link:@stripe/connect-js/pure
+    version: link:@stripe/connect-js/pure
   pythonia:
     specifier: ^1.2.1
     version: 1.2.1(ws@7.5.10)
@@ -335,6 +344,9 @@ dependencies:
   react-icons:
     specifier: ^5.2.1
     version: 5.2.1(react@18.3.1)
+  react-number-format:
+    specifier: ^5.4.0
+    version: 5.4.0(react-dom@18.3.1)(react@18.3.1)
   react-simple-code-editor:
     specifier: ^0.14.1
     version: 0.14.1(react-dom@18.3.1)(react@18.3.1)
@@ -3217,6 +3229,14 @@ packages:
       long: 5.2.3
       protobufjs: 7.3.2
       yargs: 17.7.2
+    dev: false
+
+  /@heroicons/react@2.1.5(react@18.3.1):
+    resolution: {integrity: sha512-FuzFN+BsHa+7OxbvAERtgBTNeZpUjgM/MIizfVkSCL2/edriN0Hx/DWRCR//aPYwO5QX/YlgLGXk+E3PcfZwjA==}
+    peerDependencies:
+      react: '>= 16'
+    dependencies:
+      react: 18.3.1
     dev: false
 
   /@hookform/resolvers@3.9.0(react-hook-form@7.52.1):
@@ -7290,6 +7310,22 @@ packages:
 
   /@stablelib/base64@1.0.1:
     resolution: {integrity: sha512-1bnPQqSxSuc3Ii6MhBysoWCg58j97aUjuCSZrGSmDxNqtytIi0k8utUenAwTZN4V5mXXYGsVUI9zeBqy+jBOSQ==}
+    dev: false
+
+  /@stripe/connect-js@3.3.12:
+    resolution: {integrity: sha512-hXbgvGq9Lb6BYgsb8lcbjL76Yqsxr0yAj6T9ZFTfUK0O4otI5GSEWum9do9rf/E5OfYy6fR1FG/77Jve2w1o6Q==}
+    dev: false
+
+  /@stripe/react-connect-js@3.3.12(@stripe/connect-js@3.3.12)(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-yUcqnCOpTy1C8/W87DAWVxizKxmr6c7fDAfYbm2ofDTUNdZ8l4ub5WH+nv90zdBzdIqaXvqd1VIlDtyzf0OkSQ==}
+    peerDependencies:
+      '@stripe/connect-js': '>=3.3.11'
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      '@stripe/connect-js': 3.3.12
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
     dev: false
 
   /@supabase/auth-js@2.64.4:
@@ -15667,6 +15703,17 @@ packages:
       overlap-area: 1.1.0
       react-css-styled: 1.1.9
       react-selecto: 1.26.3
+    dev: false
+
+  /react-number-format@5.4.0(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-NWdICrqLhI7rAS8yUeLVd6Wr4cN7UjJ9IBTS0f/a9i7UB4x4Ti70kGnksBtZ7o4Z7YRbvCMMR/jQmkoOBa/4fg==}
+    peerDependencies:
+      react: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
     dev: false
 
   /react-promise-suspense@0.3.4:

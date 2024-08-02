@@ -14,8 +14,11 @@ import {
     ArrowDownUp,
     MapPinned,
     Database,
-    LayoutPanelLeftIcon
+    LayoutPanelLeftIcon,
+    DoorOpen,
+    DollarSign
   } from "lucide-react";
+  import { BsStripe } from "react-icons/bs";
 
 import {
     TbCloudDataConnection,
@@ -75,20 +78,15 @@ import {
             ]
           },
           {
-            href: "/broadcasts",
-            label: "Broadcasts",
-            active: pathname.includes("/broadcasts"),
-            icon: RadioTower,
+            href: "/portals",
+            label: "Portals",
+            active: pathname.includes("/portals"),
+            icon: DoorOpen,
             submenus: [
               {
-                href: "/broadcasts/",
-                label: "Manage Broadcasts",
-                active: pathname.includes("/broadcasts/"),
-              },
-              {
-                href: "/broadcasts/requests",
-                label: "Share Requests",
-                active: pathname.includes("/broadcasts/requests"),
+                href: "/portals/",
+                label: "Manage Portals",
+                active: pathname.includes("/portals/"),
               },
             ]
           },
@@ -106,5 +104,35 @@ import {
           },
         ]
       },
+      // {
+      //   groupLabel: "Commerce",
+      //   menus: [
+      //     {
+      //       href: "/billing",
+      //       label: "Billing",
+      //       active: pathname.includes("/billing"),
+      //       icon: DollarSign,
+      //       submenus: [
+      //         {
+      //           href: "/billing/invoices/",
+      //           label: "Invoices",
+      //           active: pathname.includes("/billing/invoices/"),
+      //         },
+      //         {
+      //           href: "/billing/payments/",
+      //           label: "Payments",
+      //           active: pathname.includes("/billing/payments/"),
+      //         },
+      //       ]
+      //     },
+      //     {
+      //       href: "/billing/connect/",
+      //       label: "Manage Connect",
+      //       active: pathname.includes("/billing/connect"),
+      //       icon: BsStripe,
+      //       submenus: []
+      //     },
+      //   ]
+      // },
     ];
   }
