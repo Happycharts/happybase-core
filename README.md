@@ -5,6 +5,8 @@
 
 Welcome to Happybase, a fair-source data-sharing platform built to enable enterprise teams to build hosted data sharing portals using tools like Notion and Hex while monetzing their data via Stripe Connect. 
 
+![localhost_3000_home](https://github.com/user-attachments/assets/7f8540c7-47da-4c02-90fa-0519cf909c6d)
+
 ### 🤔 Why tho?
 
 We built Happybase as a response to closed tools like [Prequel](https://www.prequel.co/) and [Census Embedded ETL](https://www.getcensus.com/embedded) that go so far as even requiring a direct and raw data connection to your data warehouse. We believe that data should be shared, but we aren't fans of the approach that allows any customer to run a `SELECT * FROM table` query against your data.
@@ -30,4 +32,3 @@ Once you have the dependencies installed, you can run the following commands to 
 ```bash
 pnpm install
 pnpm run dev
-```
