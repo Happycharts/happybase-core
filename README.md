@@ -11,6 +11,8 @@ We built Happybase as a response to closed tools like [Prequel](https://www.preq
 
 Our approach stands out by using client-side data sharing and sementic layer tools which have built in security contexts such as Cube to enable data sharing without exposing your data to the world. By using a client-side data sharing approach along with JWT, we can ensure your ability to share data on your terms while still allowing your customers to access the data they need.
 
+<div style="position: relative; padding-bottom: calc(51.36054421768708% + 41px); height: 0; width: 100%;"><iframe src="https://demo.arcade.software/SWLUeqXYA0BvNuKvSnoc?embed&show_copy_link=true" title="localhost:3000/home" frameborder="0" loading="lazy" webkitallowfullscreen mozallowfullscreen allowfullscreen allow="clipboard-write" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;color-scheme: light;"></iframe></div>
+
 ### 🤓 How does it work?
 
 The internals of Happybase are built around a few key concepts:
