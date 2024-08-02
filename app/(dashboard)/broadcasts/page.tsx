@@ -39,12 +39,13 @@ const appLogos = {
 export default function Broadcasts() {
   const { organization, membership } = useOrganization();
   const [broadcasts, setBroadcasts] = useState<BroadcastData[]>([]);
-  const [merchants, setMerchants] = useState<MerchantData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [broadcastToDelete, setBroadcastToDelete] = useState<string | null>(null);
   const { user } = useUser();
   const { session } = useClerk();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isStripeConnected, setIsStripeConnected] = useState(false);
+
   useEffect(() => {
     let isMounted = true;
     const fetchDataAndCheckAdmin = async () => {
@@ -65,22 +66,23 @@ export default function Broadcasts() {
         setBroadcasts(broadcastsData || []);
       }
   
-      // Fetch merchant data
-      const { data: merchantData, error: merchantError } = await supabase
-        .from('merchants')
-        .select('*')
-        .eq('organization', organization.id)
-        .single();
-  
-      if (merchantError) {
-        console.error("Error fetching merchant data:", merchantError);
-      } else if (isMounted) {
-        setMerchants(merchantData || null);
-      }
-  
       const adminStatus = checkIfUserIsAdmin();
       if (isMounted) {
         setIsAdmin(adminStatus);
+      }
+  
+      // Check if the user is connected to Stripe
+      // This is a placeholder. You'll need to implement the actual check based on your backend logic
+      const { data: stripeData, error: stripeError } = await supabase
+        .from('stripe_connections')
+        .select('*')
+        .eq('organization_id', organization.id)
+        .single();
+  
+      if (stripeError) {
+        console.error("Error fetching Stripe connection status:", stripeError);
+      } else if (isMounted) {
+        setIsStripeConnected(!!stripeData);
       }
   
       setIsLoading(false);
@@ -126,6 +128,8 @@ export default function Broadcasts() {
     }
   };
 
+  const stripeConnectUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_Qa1YXbHMD2SL28qGP1igjAmJyc3oeq6W&scope=read_write&redirect_uri=https://app.happybase.co/broadcasts`;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="shadow-lg">
@@ -166,24 +170,25 @@ export default function Broadcasts() {
                     </TableCell>
                     <TableCell>{broadcast.creator_name}</TableCell>
                     <TableCell>
-                    {isAdmin ? (
-                      merchants?.onboarding_link ? (
-                        <Link href={merchants.onboarding_link}>
-                          <Button variant="outline" size="sm">
-                            Connect with Stripe
+                      {isAdmin ? (
+                        <Link href={stripeConnectUrl}>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            disabled={isStripeConnected}
+                            className="flex items-center space-x-2"
+                          >
+                            <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
+                            <span>{isStripeConnected ? 'Connected to Stripe' : 'Connect with Stripe'}</span>
                           </Button>
                         </Link>
                       ) : (
-                        <Button variant="outline" size="sm" disabled>
-                          No Onboarding Link
+                        <Button variant="outline" size="sm" disabled className="flex items-center space-x-2">
+                          <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
+                          <span>Connect with Stripe</span>
                         </Button>
-                      )
-                    ) : (
-                      <Button variant="outline" size="sm" disabled>
-                        Connect with Stripe
-                      </Button>
-                    )}
-                  </TableCell>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <TooltipProvider>
                         <Tooltip>
