@@ -10,8 +10,8 @@ const isPublicRoute = createRouteMatcher([
   '/privacy',
   '/portal/(.*)',
   '/terms',
-  '/landing',
-  '/api/(.*)',
+  '/api/(.*)', // Ensure this matches all API routes
+  '/api/webhooks(.*)'
 ]);
 
 const allowedRoutes = [
@@ -19,8 +19,9 @@ const allowedRoutes = [
   '/users',
   '/query',
   '/auth',
-  '/api/(.*)',
+  '/api/(.*)', // Ensure this matches all API routes
   '/portals',
+  '/api/webhooks(.*)',
   '/billing',
   '/portal',
   '/apps',
@@ -32,7 +33,8 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://wa.me/18657763192',
   'https://app.happybase.co',
-  'https://connect.stripe.com'
+  'https://connect.stripe.com',
+  'https://www.happybase.co',
 ];
 
 function corsMiddleware(request: NextRequest, response: NextResponse) {
@@ -52,13 +54,15 @@ function corsMiddleware(request: NextRequest, response: NextResponse) {
   return response;
 }
 
-
 export default clerkMiddleware(async (auth, req) => {
   const nextRequest = req as NextRequest;
   const { pathname } = nextRequest.nextUrl;
   const isAllowedRoute = allowedRoutes.some(route => pathname.startsWith(route));
 
+  console.log(`Request to ${pathname} - isAllowedRoute: ${isAllowedRoute}`);
+
   if (!isAllowedRoute) {
+    console.log(`Redirecting to /home because ${pathname} is not an allowed route`);
     return NextResponse.redirect(new URL('/home', nextRequest.url));
   }
 
@@ -66,6 +70,7 @@ export default clerkMiddleware(async (auth, req) => {
     const { userId } = auth();
 
     if (!userId) {
+      console.log(`Redirecting to /auth/signup because user is not authenticated`);
       return NextResponse.redirect(new URL('/auth/signup', req.url));
     }
 
@@ -76,12 +81,14 @@ export default clerkMiddleware(async (auth, req) => {
       switch (onboardingStep) {
         case 'create_organization':
           if (pathname !== '/auth/create-organization') {
+            console.log(`Redirecting to /auth/create-organization because onboarding step is create_organization`);
             return NextResponse.redirect(new URL('/auth/create-organization', req.url));
           }
           break;
         case 'stripe_connect':
           const onboardingLink = user.publicMetadata.onboarding_link as string;
           if (onboardingLink && pathname !== onboardingLink) {
+            console.log(`Redirecting to ${onboardingLink} because onboarding step is stripe_connect`);
             return NextResponse.redirect(new URL(onboardingLink, req.url));
           }
           break;
@@ -97,6 +104,7 @@ export default clerkMiddleware(async (auth, req) => {
         const publicMetadata = organization.publicMetadata as { status?: string };
 
         if (publicMetadata.status === "suspended") {
+          console.log(`Redirecting to /suspended because organization is suspended`);
           return NextResponse.redirect(new URL('/suspended', req.url));
         }
       }
