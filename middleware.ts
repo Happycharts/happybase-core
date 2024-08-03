@@ -1,7 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { clerkClient } from "@clerk/nextjs/server";
-import { stripe } from './app/utils/stripe';
 
 const isPublicRoute = createRouteMatcher([
   '/auth',
@@ -90,11 +89,7 @@ export default clerkMiddleware(async (auth, req) => {
           return NextResponse.redirect(new URL('/suspended', req.url));
         }
       }
-      const stripeCustomerId = user.privateMetadata.stripe_customer_id as string;
-      if (!stripeCustomerId && !orgId) {
-        return NextResponse.redirect(new URL('https://buy.stripe.com/test_aEU8zLaUR9uW8aQ4gh', req.url));
-      }
-      if (stripeCustomerId && !orgId) {
+      if (userId && !orgId) {
         return NextResponse.redirect(new URL('/auth/create-organization', req.url));
       }
       auth().protect();
