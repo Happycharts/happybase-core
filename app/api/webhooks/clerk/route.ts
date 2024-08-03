@@ -155,7 +155,6 @@ const event = await supabase
 
 const response = await clerkClient.users.updateUserMetadata(userId, {
   publicMetadata:{
-    "onboarding_step": "stripe_connect",
     "onboarding_link": accountLink.url
   }
 });
