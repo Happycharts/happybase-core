@@ -43,71 +43,6 @@ export default function HomePage() {
   const supabase = createClient();
   const analytics = AnalyticsBrowser.load({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY || '' });
 
-  analytics.group(orgId, {
-      name: orgName,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-    }
-  );
-  analytics.identify(orgId, {
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-    }
-  );
-  analytics.track(
-    'Viewed Home Page',
-    {
-      orgId: orgId,
-      orgName: orgName,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-    }
-  );
-
-  useEffect(() => {
-    let isMounted = true;
-    const fetchDataAndCheckAdmin = async () => {
-      if (!user?.user?.id || !organization?.id) return;
-
-      setIsLoading(true);
-
-      const adminStatus = checkIfUserIsAdmin();
-      if (isMounted) {
-        setIsAdmin(adminStatus);
-      }
-
-      const { data: merchantData, error: merchantError } = await supabase
-        .from('merchants')
-        .select('*')
-        .eq('organization', organization.id)
-        .single();
-
-      if (merchantError) {
-        console.error("Error fetching merchant data:", merchantError);
-      } else if (isMounted) {
-        setMerchantData(merchantData);
-        setIsStripeConnected(!!merchantData?.onboarding_link);
-      }
-
-      setIsLoading(false);
-    };
-
-    fetchDataAndCheckAdmin();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [user?.user?.id, organization?.id, membership]);
-
-  function checkIfUserIsAdmin(): boolean {
-    if (!membership) return false;
-    console.log("User role:", membership.role);
-    return membership.role === 'org:admin' || membership.role === 'admin';
-  }
-
   const createMerchant = async () => {
     setIsLoading(true);
     try {
@@ -117,9 +52,9 @@ export default function HomePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          first_name: firstName,
-          last_name: lastName,
-          email: email,
+          first_name: user.user?.firstName,
+          last_name: user.user?.lastName,
+          email: user.user?.primaryEmailAddress?.emailAddress,
           organization: orgId,
         }),
       });
@@ -141,6 +76,71 @@ export default function HomePage() {
       setIsLoading(false);
     }
   };
+
+  analytics.group(orgId, {
+    name: orgName,
+    email: email,
+    firstName: firstName,
+    lastName: lastName,
+  }
+);
+analytics.identify(orgId, {
+    email: email,
+    firstName: firstName,
+    lastName: lastName,
+  }
+);
+analytics.track(
+  'Viewed Home Page',
+  {
+    orgId: orgId,
+    orgName: orgName,
+    email: email,
+    firstName: firstName,
+    lastName: lastName,
+  }
+);
+
+useEffect(() => {
+  let isMounted = true;
+  const fetchDataAndCheckAdmin = async () => {
+    if (!user?.user?.id || !organization?.id) return;
+
+    setIsLoading(true);
+
+    const adminStatus = checkIfUserIsAdmin();
+    if (isMounted) {
+      setIsAdmin(adminStatus);
+    }
+
+    const { data: merchantData, error: merchantError } = await supabase
+      .from('merchants')
+      .select('*')
+      .eq('organization', organization.id)
+      .single();
+
+    if (merchantError) {
+      console.error("Error fetching merchant data:", merchantError);
+    } else if (isMounted) {
+      setMerchantData(merchantData);
+      setIsStripeConnected(!!merchantData?.onboarding_link);
+    }
+
+    setIsLoading(false);
+  };
+
+  fetchDataAndCheckAdmin();
+
+  return () => {
+    isMounted = false;
+  };
+}, [user?.user?.id, organization?.id, membership]);
+
+function checkIfUserIsAdmin(): boolean {
+  if (!membership) return false;
+  console.log("User role:", membership.role);
+  return membership.role === 'org:admin' || membership.role === 'admin';
+}
 
   const SkeletonContent = () => (
     <>
