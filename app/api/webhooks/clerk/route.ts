@@ -37,56 +37,102 @@ async function handleUserCreated(data: any) {
     }
   });
 }
-
 async function handleOrganizationCreated(data: any) {
-  console.log('Organization created:', data);
-  const orgId = data.id;
-  const userId = data.created_by;
- // Get the users email 
- 
- const user = await clerkClient.users.getUser(userId);
- const email = user.emailAddresses[0].emailAddress;
-  const account = await stripe.accounts.create({
-    type: 'express',
-    country: 'US',
-    email: data.email_addresses[0].email_address,
-    capabilities: {
-      card_payments: { requested: true },
-      transfers: { requested: true },
-    },
-  });
+  try {
+    console.log('Organization created event received:', JSON.stringify(data, null, 2));
 
-  const supabase = createClient();
+    const orgId = data.id;
+    const userId = data.created_by;
 
-  const accountLink = await stripe.accountLinks.create({
-    account: account.id,
-    refresh_url: 'https://app.happybase.co/refresh',
-    return_url: 'https://app.happybase.co/home',
-    type: 'account_onboarding',
-  });
+    console.log(`Processing organization creation for orgId: ${orgId}, userId: ${userId}`);
 
-  await supabase
-    .from('merchants')
-    .insert({
-      id: account.id,
-      first_name: data.first_name,
-      last_name: data.last_name,
-      email: email as string,
-      created_at: data.created_at,
-      organization: data.name,
-      onboarding_link: accountLink.url,
-    });
+    // Get the user's email
+    let user;
+    try {
+      user = await clerkClient.users.getUser(userId);
+      console.log(`Retrieved user data for userId: ${userId}`);
+    } catch (userError) {
+      console.error(`Error fetching user data: ${userError}`);
+      throw userError;
+    }
 
-    await clerkClient.users.updateUserMetadata(userId, {
-      publicMetadata: {
-        "organization_id": orgId
-      }
-    });
-    await clerkClient.users.updateUserMetadata(userId, {
-      publicMetadata: {
-        "onboarding_link": orgId
-      }
-    });
+    const email = user.emailAddresses[0].emailAddress;
+    console.log(`User email: ${email}`);
+
+    // Create Stripe account
+    let account;
+    try {
+      account = await stripe.accounts.create({
+        type: 'express',
+        country: 'US',
+        email: email,
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true },
+        },
+      });
+      console.log(`Stripe account created: ${account.id}`);
+    } catch (stripeError) {
+      console.error(`Error creating Stripe account: ${stripeError}`);
+      throw stripeError;
+    }
+
+    // Create Stripe account link
+    let accountLink;
+    try {
+      accountLink = await stripe.accountLinks.create({
+        account: account.id,
+        refresh_url: 'https://app.happybase.co/refresh',
+        return_url: 'https://app.happybase.co/home',
+        type: 'account_onboarding',
+      });
+      console.log(`Account link created: ${accountLink.url}`);
+    } catch (linkError) {
+      console.error(`Error creating account link: ${linkError}`);
+      throw linkError;
+    }
+
+    // Insert into Supabase
+    const supabase = createClient();
+    try {
+      const { data: insertedData, error } = await supabase
+        .from('merchants')
+        .insert({
+          id: account.id,
+          first_name: user.firstName,
+          last_name: user.lastName,
+          email: email,
+          created_at: new Date().toISOString(),
+          organization: data.name,
+          onboarding_link: accountLink.url,
+        });
+
+      if (error) throw error;
+      console.log(`Merchant data inserted into Supabase: ${JSON.stringify(insertedData)}`);
+    } catch (supabaseError) {
+      console.error(`Error inserting into Supabase: ${supabaseError}`);
+      throw supabaseError;
+    }
+
+    // Update Clerk user metadata
+    try {
+      await clerkClient.users.updateUserMetadata(userId, {
+        publicMetadata: {
+          "organization_id": orgId,
+          "onboarding_link": accountLink.url
+        }
+      });
+      console.log(`Clerk user metadata updated for userId: ${userId}`);
+    } catch (clerkError) {
+      console.error(`Error updating Clerk user metadata: ${clerkError}`);
+      throw clerkError;
+    }
+
+    console.log('Organization created event handled successfully');
+  } catch (error) {
+    console.error('Error in handleOrganizationCreated:', error);
+    throw error; // Re-throw the error to be caught by the main handler
+  }
 }
 
 // Add other event handlers here...
