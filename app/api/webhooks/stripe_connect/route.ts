@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       break;
     case 'account.application.deauthorized':
       const failedInvoice = event.data.object as Stripe.Invoice;
-      console.log('Invoice payment failed!');
+      console.log('Application deauthorized!');
       // Handle failed invoice payment
       break;
       case 'account.external_account.updated':
