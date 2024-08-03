@@ -60,6 +60,9 @@ export default clerkMiddleware(async (auth, req) => {
   const { pathname } = nextRequest.nextUrl;
   const isAllowedRoute = allowedRoutes.some(route => pathname.startsWith(route));
 
+  if (pathname.startsWith('/api/webhooks')) {
+    return NextResponse.next();
+  }
   console.log(`Request to ${pathname} - isAllowedRoute: ${isAllowedRoute}`);
 
   if (!isAllowedRoute) {
@@ -101,5 +104,5 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
-  matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: ['/((?!.*\\..*|_next|api/webhooks).*)', '/', '/(api|trpc)(.*)'],
 };
