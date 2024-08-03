@@ -42,7 +42,7 @@ export default function DemonstrationPage() {
         boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
         zIndex: 1000
       }}>
-        <Link href="/auth/signup/">
+        <Link href="https://buy.stripe.com/test_aEU8zLaUR9uW8aQ4gh">
           <Button
             style={{ width: '300px', background: 'black', padding: '10px', color: 'white' }}
           >
