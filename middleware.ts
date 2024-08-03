@@ -21,6 +21,7 @@ const allowedRoutes = [
   '/auth',
   '/api/(.*)', // Ensure this matches all API routes
   '/portals',
+  '/api/webhooks(.*)',
   '/billing',
   '/portal',
   '/apps',
