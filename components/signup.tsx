@@ -63,7 +63,7 @@ export default function AuthenticationPage() {
       </div>
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div className="max-w-md w-full space-y-6">
-          <SignUp forceRedirectUrl="https://buy.stripe.com/test_aEU8zLaUR9uW8aQ4gh" />
+          <SignUp forceRedirectUrl="/auth/create-organization" />
         </div>
       </div>
     </div>
