@@ -52,53 +52,60 @@ function corsMiddleware(request: NextRequest, response: NextResponse) {
   return response;
 }
 
+
 export default clerkMiddleware(async (auth, req) => {
   const nextRequest = req as NextRequest;
   const { pathname } = nextRequest.nextUrl;
-  // Check if the pathname starts with any of the allowed routes
   const isAllowedRoute = allowedRoutes.some(route => pathname.startsWith(route));
 
-  // Redirect to '/home' if the route is not in the allowed list
   if (!isAllowedRoute) {
     return NextResponse.redirect(new URL('/home', nextRequest.url));
   }
 
   if (!isPublicRoute(req)) {
-    const { userId, orgId } = auth();
+    const { userId } = auth();
 
     if (!userId) {
-      // If there's no userId and it's not a public route, redirect to sign-in
-      return NextResponse.redirect(new URL('/auth/login', req.url));
+      return NextResponse.redirect(new URL('/auth/signup', req.url));
     }
 
+    try {
+      const user = await clerkClient.users.getUser(userId);
+      const onboardingStep = user.publicMetadata.onboarding_step as string;
 
-    if (!userId || !orgId) {
-      // If there's no userId and it's not a public route, redirect to sign-in
-      return NextResponse.redirect(new URL('/auth/create-organization', req.url));
-    }
+      switch (onboardingStep) {
+        case 'create_organization':
+          if (pathname !== '/auth/create-organization') {
+            return NextResponse.redirect(new URL('/auth/create-organization', req.url));
+          }
+          break;
+        case 'stripe_connect':
+          const onboardingLink = user.publicMetadata.onboarding_link as string;
+          if (onboardingLink && pathname !== onboardingLink) {
+            return NextResponse.redirect(new URL(onboardingLink, req.url));
+          }
+          break;
+        // Add more cases for other onboarding steps if needed
+        default:
+          // If onboarding is complete or no specific step is set, continue to the requested page
+          break;
+      }
 
-    // Redirect to '/home' if the user is already signed in
-    if (userId) {
-      return NextResponse.redirect(new URL('/home', req.url));
-    }
-
-    if (orgId) {
-      try {
+      const orgId = user.publicMetadata.organization_id as string;
+      if (orgId) {
         const organization = await clerkClient.organizations.getOrganization({ organizationId: orgId });
         const publicMetadata = organization.publicMetadata as { status?: string };
 
         if (publicMetadata.status === "suspended") {
-          // Redirect suspended organizations to a suspended page or show an error
           return NextResponse.redirect(new URL('/suspended', req.url));
         }
-      } catch (error) {
-        console.error('Error fetching organization metadata:', error);
-        // Handle the error appropriately (e.g., redirect to an error page)
-        return NextResponse.redirect(new URL('/error', req.url));
       }
-    }
 
-    auth().protect();
+      auth().protect();
+    } catch (error) {
+      console.error('Error in middleware:', error);
+      return NextResponse.redirect(new URL('/error', req.url));
+    }
   }
 
   const response = NextResponse.next();

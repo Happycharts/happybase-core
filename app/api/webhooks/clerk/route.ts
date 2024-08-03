@@ -31,6 +31,12 @@ async function handleUserCreated(data: any) {
       },
     }
   )
+const userId = data.id;
+const response = await clerkClient.users.updateUserMetadata(userId, {
+  publicMetadata:{
+    "onboarding_step": "create_organization"
+  }
+});
 }
 
 async function handleOrganizationMembershipCreated(data: any) {
@@ -48,6 +54,7 @@ async function handleOrganizationMembershipCreated(data: any) {
     }
   )
 }
+
 
 async function handleUserUpdated(data: any) {
   console.log('User updated:', data);
@@ -92,6 +99,8 @@ async function handleEmailCreated(data: any) {
 
 async function handleOrganizationCreated(data: any) {
   console.log('Organization created:', data);
+  const orgId = data.id;
+  const userId = data.userId;
   analytics.track(
     {
       userId: data.id,
@@ -143,6 +152,13 @@ const event = await supabase
   onboarding_link: accountLink.url,
 })
 .select();
+
+const response = await clerkClient.users.updateUserMetadata(userId, {
+  publicMetadata:{
+    "onboarding_step": "stripe_connect",
+    "onboarding_link": accountLink.url
+  }
+});
 
 async function handleOrganizationUpdated(data: any) {
   console.log('Organization updated:', data);
