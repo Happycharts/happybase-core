@@ -71,7 +71,6 @@ async function handleOrganizationCreated(data: any) {
   });
 
   const email = data.email_addresses[0].email_address;
-  const domain = email.split('@')[1];
 
   await supabase
     .from('merchants')
@@ -80,7 +79,6 @@ async function handleOrganizationCreated(data: any) {
       first_name: data.first_name,
       last_name: data.last_name,
       email: email,
-      domain: domain,
       created_at: data.created_at,
       organization: data.name,
       onboarding_link: accountLink.url,
