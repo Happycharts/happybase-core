@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { clerkClient } from "@clerk/nextjs/server";
+import { clerkClient, } from "@clerk/nextjs/server";
+import { stripe } from './app/utils/stripe';
 
 const isPublicRoute = createRouteMatcher([
   '/auth',
@@ -54,7 +55,6 @@ function corsMiddleware(request: NextRequest, response: NextResponse) {
 export default clerkMiddleware(async (auth, req) => {
   const nextRequest = req as NextRequest;
   const { pathname } = nextRequest.nextUrl;
-
   // Check if the pathname starts with any of the allowed routes
   const isAllowedRoute = allowedRoutes.some(route => pathname.startsWith(route));
 
@@ -63,23 +63,32 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(new URL('/home', nextRequest.url));
   }
 
-    if (!isPublicRoute(req)) {
-      const { userId } = auth();
+  if (!isPublicRoute(req)) {
+    const { userId, orgId } = auth();
 
-      if (userId) {
-        const user = await clerkClient().users.getUser(userId);
-        const stripeCustomerId = user.privateMetadata.stripeCustomerId;
-
-        if (!stripeCustomerId) {
-          return NextResponse.redirect('https://buy.stripe.com/test_aEU8zLaUR9uW8aQ4gh');
-        }
-
-        // Return private metadata if needed
-        return NextResponse.json(user.privateMetadata);
-      }
-
-      auth().protect();
+    if (!userId) {
+      // If there's no userId and it's not a public route, redirect to sign-in
+      return NextResponse.redirect(new URL('/auth/login', req.url));
     }
+
+    if (orgId) {
+      try {
+        const organization = await clerkClient.organizations.getOrganization({ organizationId: orgId });
+        const publicMetadata = organization.publicMetadata as { status?: string };
+
+        if (publicMetadata.status === "suspended") {
+          // Redirect suspended organizations to a suspended page or show an error
+          return NextResponse.redirect(new URL('/suspended', req.url));
+        }
+      } catch (error) {
+        console.error('Error fetching organization metadata:', error);
+        // Handle the error appropriately (e.g., redirect to an error page)
+        return NextResponse.redirect(new URL('/error', req.url));
+      }
+    }
+
+    auth().protect();
+  }
 
   const response = NextResponse.next();
   return corsMiddleware(nextRequest, response);
