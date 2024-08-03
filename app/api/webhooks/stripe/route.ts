@@ -11,14 +11,19 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(request: Request) {
   const sig = request.headers.get('stripe-signature');
   const body = await request.text();
-
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: 'Missing STRIPE_WEBHOOK_SECRET' }, { status: 500 });
+  }
   let event;
 
   try {
+    if (!process.env.STRIPE_WEBHOOK_SECRET) {
+      throw new Error('Missing STRIPE_WEBHOOK_SECRET');
+    }
     event = stripe.webhooks.constructEvent(
       body,
       sig!,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err: any) {
     return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
