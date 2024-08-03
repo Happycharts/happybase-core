@@ -31,6 +31,12 @@ async function handleUserCreated(data: any) {
       },
     }
   )
+const userId = data.id;
+const response = await clerkClient.users.updateUserMetadata(userId, {
+  publicMetadata:{
+    "onboarding_step": "create_organization"
+  }
+});
 }
 
 async function handleOrganizationMembershipCreated(data: any) {
@@ -48,6 +54,7 @@ async function handleOrganizationMembershipCreated(data: any) {
     }
   )
 }
+
 
 async function handleUserUpdated(data: any) {
   console.log('User updated:', data);
@@ -92,6 +99,8 @@ async function handleEmailCreated(data: any) {
 
 async function handleOrganizationCreated(data: any) {
   console.log('Organization created:', data);
+  const orgId = data.id;
+  const userId = data.userId;
   analytics.track(
     {
       userId: data.id,
@@ -119,17 +128,38 @@ async function handleOrganizationCreated(data: any) {
 
 const supabase = createClient();
 
+const accountLink = await stripe.accountLinks.create({
+  account: account.id,
+  refresh_url: 'https://app.happybase.co/refresh',
+  return_url: 'https://app.happybase.co/home',
+  type: 'account_onboarding',
+});
+
+  // Extract domain from email
+const email = data.email_addresses[0].email_address;
+const domain = email.split('@')[1];
+
 const event = await supabase
-  .from('merchants')
-  .insert({
-    id: account.id,
-    first_name: data.first_name,
-    last_name: data.last_name,
-    email: data.email_addresses[0].email_address,
-    created_at: data.created_at,
-    organizagion:  data.organization_memberships[0].organization.name,
-  })
-  .select();
+.from('merchants')
+.insert({
+  id: account.id,
+  first_name: data.first_name,
+  last_name: data.last_name,
+  email: email,
+  domain: domain, // Add the extracted domain
+  created_at: data.created_at,
+  organization: data.organization_memberships[0].organization.name,
+  onboarding_link: accountLink.url,
+})
+.select();
+
+const response = await clerkClient.users.updateUserMetadata(userId, {
+  publicMetadata:{
+    "onboarding_step": "stripe_connect",
+    "onboarding_link": accountLink.url
+  }
+});
+
 async function handleOrganizationUpdated(data: any) {
   console.log('Organization updated:', data);
   // Implement organization update logic here
