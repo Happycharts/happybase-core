@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth, Organization } from '@clerk/nextjs/server';
 import Stripe from 'stripe';
 import { createClient } from '@/app/utils/supabase/server';
+import { clerkClient } from '@clerk/nextjs/server';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-08-16',
@@ -14,28 +15,62 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const data = await req.json();
+  const userId = data.created_by;
+
   const supabase = createClient();
 
   try {
-    // Fetch the merchant record for the authenticated user
-    const { data: merchant, error } = await supabase
-      .from('merchants')
-      .select('id')
-      .eq('organization', orgId)
-      .single();
+    // Get the user's email
+    const user = await clerkClient.users.getUser(userId);
+    const email = user.emailAddresses[0].emailAddress;
+    console.log('User email:', email);
 
-    if (error || !merchant) {
-      console.error('Error fetching merchant:', error);
-      return NextResponse.json({ error: 'Merchant not found' }, { status: 404 });
-    }
+    // Create Stripe account
+    const account = await stripe.accounts.create({
+      type: 'express',
+      country: 'US',
+      email: email,
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      },
+    });
+    console.log('Stripe account created:', account.id);
 
-    const stripeAccountId = merchant.id;
-
+    // Create account link
     const accountLink = await stripe.accountLinks.create({
-      account: stripeAccountId,
-      refresh_url: 'https://app.happybase.co/refresh', // Update with your actual refresh URL
-      return_url: 'https://app.happybase.co/return', // Update with your actual return URL
+      account: account.id,
+      refresh_url: 'https://app.happybase.co/refresh',
+      return_url: 'https://app.happybase.co/home',
       type: 'account_onboarding',
+    });
+    console.log('Stripe account link created:', accountLink.url);
+
+    // Insert data into Supabase
+    const { data: insertData, error } = await supabase
+      .from('merchants')
+      .insert({
+        id: account.id,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: email,
+        organization: data.name,
+        onboarding_link: accountLink.url,
+      });
+
+    if (error) {
+      console.error('Error inserting into Supabase:', error);
+      throw error;
+    }
+    console.log('Data inserted into Supabase:', insertData);
+
+    // Update user metadata
+    await clerkClient.users.updateUserMetadata(userId, {
+      publicMetadata: {
+        organization_id: orgId,
+        onboarding_link: accountLink.url,
+      },
     });
 
     return NextResponse.json({ url: accountLink.url }, { status: 200 });
