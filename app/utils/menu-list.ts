@@ -104,35 +104,35 @@ import {
           },
         ]
       },
-      // {
-      //   groupLabel: "Commerce",
-      //   menus: [
-      //     {
-      //       href: "/billing",
-      //       label: "Billing",
-      //       active: pathname.includes("/billing"),
-      //       icon: DollarSign,
-      //       submenus: [
-      //         {
-      //           href: "/billing/invoices/",
-      //           label: "Invoices",
-      //           active: pathname.includes("/billing/invoices/"),
-      //         },
-      //         {
-      //           href: "/billing/payments/",
-      //           label: "Payments",
-      //           active: pathname.includes("/billing/payments/"),
-      //         },
-      //       ]
-      //     },
-      //     {
-      //       href: "/billing/connect/",
-      //       label: "Manage Connect",
-      //       active: pathname.includes("/billing/connect"),
-      //       icon: BsStripe,
-      //       submenus: []
-      //     },
-      //   ]
-      // },
+       {
+         groupLabel: "Commerce",
+         menus: [
+           {
+             href: "/billing",
+             label: "Billing",
+             active: pathname.includes("/billing"),
+             icon: DollarSign,
+             submenus: [
+               {
+                 href: "/billing/invoices/",
+                 label: "Invoices",
+                 active: pathname.includes("/billing/invoices/"),
+               },
+               {
+                 href: "/billing/payments/",
+                 label: "Payments",
+                 active: pathname.includes("/billing/payments/"),
+               },
+             ]
+           },
+           {
+             href: "/billing/connect/",
+             label: "Manage Connect",
+             active: pathname.includes("/billing/connect"),
+             icon: BsStripe,
+             submenus: []
+           },
+         ]
+       },
     ];
   }

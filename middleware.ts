@@ -70,6 +70,7 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(new URL('/home', nextRequest.url));
   }
 
+
   if (!isPublicRoute(req)) {
     const { userId } = auth();
 

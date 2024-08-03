@@ -32,26 +32,7 @@ export async function POST(request: Request) {
   // Handle the event
   switch (event.type as Stripe.Event.Type) {
     case 'customer.created':
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      const customer = event.data.object as Stripe.Customer;
-      if (customer.metadata.stripe_customer_id) {
-        await clerkClient().users.updateUserMetadata(customer.metadata.stripe_customer_id, {
-          privateMetadata: {
-            stripe_customer_id: customer.id as string,
-          }
-        });
-      }
-      analytics.track(
-        {
-          userId: customer.metadata.clerk_user_id,
-          event: 'Customer Created',
-          properties: {
-            email: customer.email,
-            name: customer.name,
-            createdAt: customer.created,
-          },
-        }
-      )
+    break
     case 'customer.updated':
       break;
     case 'payment_intent.succeeded':
