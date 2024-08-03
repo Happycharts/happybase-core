@@ -78,7 +78,7 @@ async function handleOrganizationCreated(data: any) {
       id: account.id,
       first_name: data.first_name,
       last_name: data.last_name,
-      email: email,
+      email: email as string,
       created_at: data.created_at,
       organization: data.name,
       onboarding_link: accountLink.url,
