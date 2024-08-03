@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import Stripe from 'stripe';
 import { createClient } from '@/app/utils/supabase/server';
@@ -7,13 +7,15 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-08-16',
 });
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
+export async function POST(req: NextRequest) {
   const { orgId } = auth();
 
   if (!orgId) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
   const supabase = createClient();
+
   try {
     // Fetch the merchant record for the authenticated user
     const { data: merchant, error } = await supabase
@@ -24,7 +26,7 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
 
     if (error || !merchant) {
       console.error('Error fetching merchant:', error);
-      return res.status(404).json({ error: 'Merchant not found' });
+      return NextResponse.json({ error: 'Merchant not found' }, { status: 404 });
     }
 
     const stripeAccountId = merchant.id;
@@ -36,17 +38,9 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
       type: 'account_onboarding',
     });
 
-    res.status(200).json({ url: accountLink.url });
+    return NextResponse.json({ url: accountLink.url }, { status: 200 });
   } catch (error) {
     console.error('Error creating account link:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-}
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'POST') {
-    return POST(req, res);
-  } else {
-    return res.status(405).end('Method Not Allowed');
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
