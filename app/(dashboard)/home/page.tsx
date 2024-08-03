@@ -71,15 +71,14 @@ export default function HomePage() {
     let isMounted = true;
     const fetchDataAndCheckAdmin = async () => {
       if (!user?.user?.id || !organization?.id) return;
-  
+
       setIsLoading(true);
-  
 
       const adminStatus = checkIfUserIsAdmin();
       if (isMounted) {
         setIsAdmin(adminStatus);
       }
-  
+
       const { data: merchantData, error: merchantError } = await supabase
         .from('merchants')
         .select('*')
@@ -92,12 +91,12 @@ export default function HomePage() {
         setMerchantData(merchantData);
         setIsStripeConnected(!!merchantData?.onboarding_link);
       }
-  
+
       setIsLoading(false);
     };
-  
+
     fetchDataAndCheckAdmin();
-  
+
     return () => {
       isMounted = false;
     };
@@ -108,6 +107,40 @@ export default function HomePage() {
     console.log("User role:", membership.role);
     return membership.role === 'org:admin' || membership.role === 'admin';
   }
+
+  const createMerchant = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/create-merchant', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          first_name: firstName,
+          last_name: lastName,
+          email: email,
+          organization: orgId,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMerchantData({
+          id: data.id,
+          organization: orgId as string,
+          onboarding_link: data.url,
+        });
+        setIsStripeConnected(true);
+      } else {
+        console.error('Error creating merchant:', await response.json());
+      }
+    } catch (error) {
+      console.error('Error creating merchant:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const SkeletonContent = () => (
     <>
@@ -151,7 +184,6 @@ export default function HomePage() {
 
   const stripeConnectUrl = merchantData?.onboarding_link || `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_Qa1YXbHMD2SL28qGP1igjAmJyc3oeq6W&scope=read_write&redirect_uri=https://app.happybase.co/portals`;
 
-
   return (
     <div className="container mx-auto p-6 bg-white min-h-screen">
       {loading ? (
@@ -169,17 +201,31 @@ export default function HomePage() {
                   <h3 className="text-xl font-semibold text-black mb-3">1. Connect with Stripe</h3>
                   <p className="text-black mb-4">Connect a Stripe account so you can start setting rates for your data access</p>
                   {isAdmin ? (
-                      <Link href={stripeConnectUrl}>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          disabled={isStripeConnected}
-                          className="flex items-center space-x-2"
-                        >
-                          <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
-                          <span>{isStripeConnected ? 'Connected to Stripe' : 'Connect with Stripe'}</span>
-                        </Button>
-                      </Link>
+                      <>
+                        {isStripeConnected ? (
+                          <Link href={stripeConnectUrl}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled={isStripeConnected}
+                              className="flex items-center space-x-2"
+                            >
+                              <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
+                              <span>{isStripeConnected ? 'Connected to Stripe' : 'Connect with Stripe'}</span>
+                            </Button>
+                          </Link>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={createMerchant}
+                            className="flex items-center space-x-2"
+                          >
+                            <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
+                            <span>Connect with Stripe</span>
+                          </Button>
+                        )}
+                      </>
                     ) : (
                       <Button variant="outline" size="sm" disabled className="flex items-center space-x-2">
                         <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
@@ -188,7 +234,7 @@ export default function HomePage() {
                     )}
                 </li>
                 <li className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-semibold text-black mb-3">1. Connect your first tool</h3>
+                  <h3 className="text-xl font-semibold text-black mb-3">2. Connect your first tool</h3>
                   <p className="text-black mb-4">Connect a tool so you can start centralizing your semantic layer.</p>
                   <Button className="bg-black hover:bg-gray-800 text-white transition-colors duration-300">
                     <Link href="/apps/add">
