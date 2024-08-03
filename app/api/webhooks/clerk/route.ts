@@ -119,17 +119,31 @@ async function handleOrganizationCreated(data: any) {
 
 const supabase = createClient();
 
+const accountLink = await stripe.accountLinks.create({
+  account: account.id,
+  refresh_url: 'https://app.happybase.co/refresh',
+  return_url: 'https://app.happybase.co/home',
+  type: 'account_onboarding',
+});
+
+  // Extract domain from email
+const email = data.email_addresses[0].email_address;
+const domain = email.split('@')[1];
+
 const event = await supabase
-  .from('merchants')
-  .insert({
-    id: account.id,
-    first_name: data.first_name,
-    last_name: data.last_name,
-    email: data.email_addresses[0].email_address,
-    created_at: data.created_at,
-    organizagion:  data.organization_memberships[0].organization.name,
-  })
-  .select();
+.from('merchants')
+.insert({
+  id: account.id,
+  first_name: data.first_name,
+  last_name: data.last_name,
+  email: email,
+  domain: domain, // Add the extracted domain
+  created_at: data.created_at,
+  organization: data.organization_memberships[0].organization.name,
+  onboarding_link: accountLink.url,
+})
+.select();
+
 async function handleOrganizationUpdated(data: any) {
   console.log('Organization updated:', data);
   // Implement organization update logic here

@@ -66,9 +66,15 @@ export default clerkMiddleware(async (auth, req) => {
   if (!isPublicRoute(req)) {
     const { userId, orgId } = auth();
 
-    if (!userId || !orgId || !req.url.includes('/auth/')) {
+    if (!userId) {
       // If there's no userId and it's not a public route, redirect to sign-in
       return NextResponse.redirect(new URL('/auth/login', req.url));
+    }
+
+
+    if (!userId || !orgId) {
+      // If there's no userId and it's not a public route, redirect to sign-in
+      return NextResponse.redirect(new URL('/auth/create-organization', req.url));
     }
 
     // Redirect to '/home' if the user is already signed in
