@@ -1,6 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { clerkClient, } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import { stripe } from './app/utils/stripe';
 
 const isPublicRoute = createRouteMatcher([
@@ -69,6 +69,11 @@ export default clerkMiddleware(async (auth, req) => {
     if (!userId || !orgId || !req.url.includes('/auth/')) {
       // If there's no userId and it's not a public route, redirect to sign-in
       return NextResponse.redirect(new URL('/auth/login', req.url));
+    }
+
+    // Redirect to '/home' if the user is already signed in
+    if (userId) {
+      return NextResponse.redirect(new URL('/home', req.url));
     }
 
     if (orgId) {
