@@ -16,7 +16,8 @@ import {
     Database,
     LayoutPanelLeftIcon,
     DoorOpen,
-    DollarSign
+    DollarSign,
+    Construction
   } from "lucide-react";
   import { BsStripe } from "react-icons/bs";
 
@@ -109,27 +110,9 @@ import {
          menus: [
            {
              href: "/billing",
-             label: "Billing",
+             label: "Billing (Under Construction)",
              active: pathname.includes("/billing"),
-             icon: DollarSign,
-             submenus: [
-               {
-                 href: "/billing/invoices/",
-                 label: "Invoices",
-                 active: pathname.includes("/billing/invoices/"),
-               },
-               {
-                 href: "/billing/payments/",
-                 label: "Payments",
-                 active: pathname.includes("/billing/payments/"),
-               },
-             ]
-           },
-           {
-             href: "/billing/connect/",
-             label: "Manage Connect",
-             active: pathname.includes("/billing/connect"),
-             icon: BsStripe,
+             icon: Construction,
              submenus: []
            },
          ]
