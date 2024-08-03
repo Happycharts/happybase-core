@@ -35,6 +35,7 @@ const allowedOrigins = [
   'https://app.happybase.co',
   'https://connect.stripe.com',
   'https://www.happybase.co',
+  'https://buy.stripe.com'
 ];
 
 function corsMiddleware(request: NextRequest, response: NextResponse) {
@@ -73,11 +74,6 @@ export default clerkMiddleware(async (auth, req) => {
       console.log(`Redirecting to /auth/signup because user is not authenticated`);
       return NextResponse.redirect(new URL('/auth/signup', req.url));
     }
-
-    if (pathname !== '/auth/create-organization') {
-      console.log(`Redirecting to /auth/create-organization because onboarding step is create_organization`);
-      return NextResponse.redirect(new URL('/auth/create-organization', req.url));
-    }
     const user = await clerkClient.users.getUser(userId);
 
       const orgId = user.publicMetadata.organization_id as string;
@@ -91,8 +87,11 @@ export default clerkMiddleware(async (auth, req) => {
         }
       }
       const stripeCustomerId = user.privateMetadata.stripe_customer_id as string;
-      if (!stripeCustomerId) {
+      if (!stripeCustomerId && !orgId) {
         return NextResponse.redirect(new URL('https://buy.stripe.com/test_aEU8zLaUR9uW8aQ4gh', req.url));
+      }
+      if (stripeCustomerId && !orgId) {
+        return NextResponse.redirect(new URL('/auth/create-organization', req.url));
       }
       auth().protect();
   }
