@@ -31,11 +31,6 @@ async function handleUserCreated(data: any) {
     },
   });
   const userId = data.id;
-  await clerkClient.users.updateUserMetadata(userId, {
-    publicMetadata: {
-      "onboarding_step": "create_organization"
-    }
-  });
 }
 
 async function handleOrganizationCreated(data: any) {

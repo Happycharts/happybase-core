@@ -1,7 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { clerkClient } from "@clerk/nextjs/server";
-import { stripe } from './app/utils/stripe';
 
 const isPublicRoute = createRouteMatcher([
   '/auth',
