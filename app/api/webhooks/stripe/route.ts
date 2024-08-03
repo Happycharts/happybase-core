@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       if (customer.metadata.stripe_customer_id) {
         await clerkClient().users.updateUserMetadata(customer.metadata.stripe_customer_id, {
           privateMetadata: {
-            stripe_customer_id: customer.id
+            stripe_customer_id: customer.id as string,
           }
         });
       }
