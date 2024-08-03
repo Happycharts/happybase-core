@@ -46,7 +46,7 @@ export default function HomePage() {
   const createMerchant = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/create-merchant', {
+      const response = await fetch('/api/connect_links/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
