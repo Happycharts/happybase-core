@@ -37,51 +37,66 @@ async function handleOrganizationCreated(data: any) {
   console.log('Organization created:', data);
   const orgId = data.id;
   const userId = data.created_by;
- // Get the users email 
- 
- const user = await clerkClient.users.getUser(userId);
- const email = user.emailAddresses[0].emailAddress;
-  const account = await stripe.accounts.create({
-    type: 'express',
-    country: 'US',
-    email: data.email_addresses[0].email_address,
-    capabilities: {
-      card_payments: { requested: true },
-      transfers: { requested: true },
-    },
-  });
 
-  const supabase = createClient();
+  try {
+    // Get the user's email
+    const user = await clerkClient.users.getUser(userId);
+    const email = user.emailAddresses[0].emailAddress;
+    console.log('User email:', email);
 
-  const accountLink = await stripe.accountLinks.create({
-    account: account.id,
-    refresh_url: 'https://app.happybase.co/refresh',
-    return_url: 'https://app.happybase.co/home',
-    type: 'account_onboarding',
-  });
-
-  await supabase
-    .from('merchants')
-    .insert({
-      id: account.id,
-      first_name: data.first_name,
-      last_name: data.last_name,
-      email: email as string,
-      created_at: data.created_at,
-      organization: data.name,
-      onboarding_link: accountLink.url,
+    // Create Stripe account
+    const account = await stripe.accounts.create({
+      type: 'express',
+      country: 'US',
+      email: email,
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      },
     });
+    console.log('Stripe account created:', account.id);
 
+    // Create account link
+    const accountLink = await stripe.accountLinks.create({
+      account: account.id,
+      refresh_url: 'https://app.happybase.co/refresh',
+      return_url: 'https://app.happybase.co/home',
+      type: 'account_onboarding',
+    });
+    console.log('Stripe account link created:', accountLink.url);
+
+    // Insert data into Supabase
+    const supabase = createClient();
+    const { data: insertData, error } = await supabase
+      .from('merchants')
+      .insert({
+        id: account.id,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: email,
+        created_at: data.created_at,
+        organization: data.name,
+        onboarding_link: accountLink.url,
+      });
+
+    if (error) {
+      console.error('Error inserting into Supabase:', error);
+      throw error;
+    }
+    console.log('Data inserted into Supabase:', insertData);
+
+    // Update user metadata
     await clerkClient.users.updateUserMetadata(userId, {
       publicMetadata: {
-        "organization_id": orgId
-      }
+        organization_id: orgId,
+        onboarding_link: accountLink.url,
+      },
     });
-    await clerkClient.users.updateUserMetadata(userId, {
-      publicMetadata: {
-        "onboarding_link": orgId
-      }
-    });
+    console.log('User metadata updated');
+
+  } catch (error) {
+    console.error('Error in handleOrganizationCreated:', error);
+  }
 }
 
 // Add other event handlers here...
