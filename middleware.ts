@@ -74,29 +74,11 @@ export default clerkMiddleware(async (auth, req) => {
       return NextResponse.redirect(new URL('/auth/signup', req.url));
     }
 
-    try {
-      const user = await clerkClient.users.getUser(userId);
-      const onboardingStep = user.publicMetadata.onboarding_step as string;
-
-      switch (onboardingStep) {
-        case 'create_organization':
-          if (pathname !== '/auth/create-organization') {
-            console.log(`Redirecting to /auth/create-organization because onboarding step is create_organization`);
-            return NextResponse.redirect(new URL('/auth/create-organization', req.url));
-          }
-          break;
-        case 'stripe_connect':
-          const onboardingLink = user.publicMetadata.onboarding_link as string;
-          if (onboardingLink && pathname !== onboardingLink) {
-            console.log(`Redirecting to ${onboardingLink} because onboarding step is stripe_connect`);
-            return NextResponse.redirect(new URL(onboardingLink, req.url));
-          }
-          break;
-        // Add more cases for other onboarding steps if needed
-        default:
-          // If onboarding is complete or no specific step is set, continue to the requested page
-          break;
-      }
+    if (pathname !== '/auth/create-organization') {
+      console.log(`Redirecting to /auth/create-organization because onboarding step is create_organization`);
+      return NextResponse.redirect(new URL('/auth/create-organization', req.url));
+    }
+    const user = await clerkClient.users.getUser(userId);
 
       const orgId = user.publicMetadata.organization_id as string;
       if (orgId) {
@@ -108,12 +90,11 @@ export default clerkMiddleware(async (auth, req) => {
           return NextResponse.redirect(new URL('/suspended', req.url));
         }
       }
-
+      const stripeCustomerId = user.privateMetadata.stripe_customer_id as string;
+      if (!stripeCustomerId) {
+        return NextResponse.redirect(new URL('https://buy.stripe.com/test_aEU8zLaUR9uW8aQ4gh', req.url));
+      }
       auth().protect();
-    } catch (error) {
-      console.error('Error in middleware:', error);
-      return NextResponse.redirect(new URL('/error', req.url));
-    }
   }
 
   const response = NextResponse.next();
