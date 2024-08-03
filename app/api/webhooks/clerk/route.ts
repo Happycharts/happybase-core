@@ -37,6 +37,7 @@ async function handleOrganizationCreated(data: any) {
   console.log('Organization created:', data);
   const orgId = data.id;
   const userId = data.created_by;
+  const supabase = createClient();
 
   try {
     // Get the user's email
@@ -65,8 +66,7 @@ async function handleOrganizationCreated(data: any) {
     });
     console.log('Stripe account link created:', accountLink.url);
 
-    // Insert data into Supabase
-    const supabase = createClient();
+    // Insert data into Supabas
     const { data: insertData, error } = await supabase
       .from('merchants')
       .insert({
