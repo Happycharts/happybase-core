@@ -9,7 +9,7 @@ const isPublicRoute = createRouteMatcher([
   '/privacy',
   '/portal/(.*)',
   '/terms',
-  '/api/(.*)', // Ensure this matches all API routes
+  '/api/(.*)',
   '/api/webhooks(.*)'
 ]);
 
@@ -18,7 +18,7 @@ const allowedRoutes = [
   '/users',
   '/query',
   '/auth',
-  '/api/(.*)', // Ensure this matches all API routes
+  '/api/(.*)',
   '/portals',
   '/api/webhooks(.*)',
   '/billing',
@@ -59,16 +59,18 @@ export default clerkMiddleware(async (auth, req) => {
   const { pathname } = nextRequest.nextUrl;
   const isAllowedRoute = allowedRoutes.some(route => pathname.startsWith(route));
 
+  console.log(`Request to ${pathname} - isAllowedRoute: ${isAllowedRoute}`);
+
+  // Explicitly allow webhook routes
   if (pathname.startsWith('/api/webhooks')) {
+    console.log(`Allowing webhook request to ${pathname}`);
     return NextResponse.next();
   }
-  console.log(`Request to ${pathname} - isAllowedRoute: ${isAllowedRoute}`);
 
   if (!isAllowedRoute) {
     console.log(`Redirecting to /home because ${pathname} is not an allowed route`);
     return NextResponse.redirect(new URL('/home', nextRequest.url));
   }
-
 
   if (!isPublicRoute(req)) {
     const { userId } = auth();
@@ -77,9 +79,11 @@ export default clerkMiddleware(async (auth, req) => {
       console.log(`Redirecting to /auth/signup because user is not authenticated`);
       return NextResponse.redirect(new URL('/auth/signup', req.url));
     }
-    const user = await clerkClient.users.getUser(userId);
 
+    try {
+      const user = await clerkClient.users.getUser(userId);
       const orgId = user.publicMetadata.organization_id as string;
+
       if (orgId) {
         const organization = await clerkClient.organizations.getOrganization({ organizationId: orgId });
         const publicMetadata = organization.publicMetadata as { status?: string };
@@ -89,10 +93,12 @@ export default clerkMiddleware(async (auth, req) => {
           return NextResponse.redirect(new URL('/suspended', req.url));
         }
       }
-      if (userId && !orgId) {
-        return NextResponse.redirect(new URL('/auth/create-organization', req.url));
-      }
+
       auth().protect();
+    } catch (error) {
+      console.error('Error in middleware:', error);
+      return NextResponse.redirect(new URL('/error', req.url));
+    }
   }
 
   const response = NextResponse.next();
