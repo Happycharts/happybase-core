@@ -3,22 +3,19 @@
 
 *"Happybase stands firmly with the people of Occupied Palestine, as we have from the beginning. We are a community of technologists, designers, and developers who are committed to using our skills and talents to create a better world for all. 🇵🇸🇵🇸🇵🇸"*
 
-Welcome to Happybase, the fair-source data commercialization platform built to enable enterprise teams to build hosted data sharing portals using tools like Notion and Hex while monetzing their data via Stripe Connect. 
-
 ![localhost_3000_home](https://github.com/user-attachments/assets/7f8540c7-47da-4c02-90fa-0519cf909c6d)
-
-### 🤔 Why tho?
 
 > In a landscape where data is the new oil, we wanted to build a platform that creates the refinery to extract value from data. - James
 
-When we started Happybase, we had a few goals in mind:
+Welcome to Happybase, the fair-source data commercialization platform built to enable enterprise teams to build hosted data sharing portals using tools like Notion and Hex while monetzing their data via Stripe Connect. 
+
+### 🤔 Why tho?
+
+While Happybase in many ways is a simple tool, the commercialization it enables and the flexibility it provides is what makes it so powerful. We also believe that the value compared to other alternatives is bar-none. When we started Happybase, we had a few goals in mind:
 
 - **Build something that is easy to use and maintain.**
 - **Build a platform that is so flexible it can be used for applications even outside data sharing.**
 - **Provide users with a way to commercialize their data without having to commit a huge portion of their ACV to a data sharing platform.**
-
-
-While Happybase in many ways is a simple tool, the commercialization it enables and the flexibility it provides is what makes it so powerful. We also believe that the value compared to other alternatives is bar-none.
 
 Happybase is built around a few key concepts that make it a powerful and secure data-sharing platform. These concepts include IFrame Portals, JWT (JSON Web Tokens), and a Semantic Layer. Let’s dive into each of these components to understand how they work together to create a robust and user-friendly platform.
 
