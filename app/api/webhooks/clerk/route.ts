@@ -42,15 +42,10 @@ async function handleOrganizationCreated(data: any) {
   console.log('Organization created:', data);
   const orgId = data.id;
   const userId = data.created_by;
-  analytics.track({
-    userId: userId,
-    event: 'Organization Created',
-    properties: {
-      name: data.name,
-      createdAt: data.created_at,
-    },
-  });
-  
+ // Get the users email 
+ 
+ const user = await clerkClient.users.getUser(userId);
+ const email = user.emailAddresses[0].emailAddress;
   const account = await stripe.accounts.create({
     type: 'express',
     country: 'US',
@@ -70,8 +65,6 @@ async function handleOrganizationCreated(data: any) {
     type: 'account_onboarding',
   });
 
-  const email = data.email_addresses[0].email_address;
-
   await supabase
     .from('merchants')
     .insert({
@@ -84,11 +77,16 @@ async function handleOrganizationCreated(data: any) {
       onboarding_link: accountLink.url,
     });
 
-  await clerkClient.users.updateUserMetadata(userId, {
-    publicMetadata: {
-      "onboarding_link": accountLink.url
-    }
-  });
+    await clerkClient.users.updateUserMetadata(userId, {
+      publicMetadata: {
+        "organization_id": orgId
+      }
+    });
+    await clerkClient.users.updateUserMetadata(userId, {
+      publicMetadata: {
+        "onboarding_link": orgId
+      }
+    });
 }
 
 // Add other event handlers here...
