@@ -60,7 +60,7 @@ export default function AuthenticationPage() {
       </div>
       <div className="bg-black lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-          <CreateOrganization afterCreateOrganizationUrl="https://buy.stripe.com/cN27uf2B1gFagYofYY" path="/auth/create-organization" />
+          <CreateOrganization afterCreateOrganizationUrl="https://buy.stripe.com/test_aEU8zLaUR9uW8aQ4gh" path="/auth/create-organization" />
           <p className="px-8 text-center text-sm text-white">
             By clicking continue, you agree to our{" "}
             <Link
