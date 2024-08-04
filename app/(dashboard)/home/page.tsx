@@ -54,7 +54,7 @@ export default function HomePage() {
 
       if (merchantError && merchantError.code !== 'PGRST116') {
         console.error("Error fetching merchant data:", merchantError);
-      } else if (!existingMerchant && isAdmin) {
+      } else if (!existingMerchant) {
         // If no merchant exists and user is admin, create one
         try {
           const response = await fetch('/api/connect_links/generate', {

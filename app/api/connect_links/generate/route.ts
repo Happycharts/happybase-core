@@ -9,18 +9,18 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 export async function POST(req: NextRequest) {
-  const { orgId } = auth();
-
-  if (!orgId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const data = await req.json();
-  const userId = data.created_by;
-
-  const supabase = createClient();
-
   try {
+    const { orgId } = auth();
+
+    if (!orgId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const data = await req.json();
+    const userId = data.created_by;
+
+    const supabase = createClient();
+
     // Get the user's email
     const user = await clerkClient.users.getUser(userId);
     const email = user.emailAddresses[0].emailAddress;
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error('Error inserting into Supabase:', error);
-      throw error;
+      return NextResponse.json({ error: 'Error inserting into database' }, { status: 500 });
     }
     console.log('Data inserted into Supabase:', insertData);
 

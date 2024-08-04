@@ -19,6 +19,7 @@ const allowedRoutes = [
   '/query',
   '/auth',
   '/api/(.*)',
+  '/api/connect_links/generate',
   '/portals',
   '/api/webhooks(.*)',
   '/billing',
