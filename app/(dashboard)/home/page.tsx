@@ -33,41 +33,6 @@ export default function HomePage() {
   const supabase = createClient();
   const analytics = AnalyticsBrowser.load({ writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY || '' });
 
-  const createMerchant = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/connect_links/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          first_name: user.user?.firstName,
-          last_name: user.user?.lastName,
-          email: user.user?.primaryEmailAddress?.emailAddress,
-          organization: orgId,
-          created_by: user.user?.id,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setMerchantData({
-          id: data.id,
-          organization: orgId as string,
-          onboarding_link: data.url,
-        });
-        setIsStripeConnected(true);
-      } else {
-        console.error('Error creating merchant:', await response.json());
-      }
-    } catch (error) {
-      console.error('Error creating merchant:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     let isMounted = true;
     const fetchDataAndCheckAdmin = async () => {
@@ -80,17 +45,53 @@ export default function HomePage() {
         setIsAdmin(adminStatus);
       }
 
-      const { data: merchantData, error: merchantError } = await supabase
+      // Fetch existing merchant data
+      const { data: existingMerchant, error: merchantError } = await supabase
         .from('merchants')
         .select('*')
         .eq('organization', organization.id)
         .single();
 
-      if (merchantError) {
+      if (merchantError && merchantError.code !== 'PGRST116') {
         console.error("Error fetching merchant data:", merchantError);
-      } else if (isMounted) {
-        setMerchantData(merchantData);
-        setIsStripeConnected(!!merchantData?.onboarding_link);
+      } else if (!existingMerchant && isAdmin) {
+        // If no merchant exists and user is admin, create one
+        try {
+          const response = await fetch('/api/connect_links/generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              first_name: user.user?.firstName,
+              last_name: user.user?.lastName,
+              email: user.user?.primaryEmailAddress?.emailAddress,
+              organization: organization.id,
+              created_by: user.user?.id,
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (isMounted) {
+              setMerchantData({
+                id: data.id,
+                organization: organization.id,
+                onboarding_link: data.url,
+              });
+              setIsStripeConnected(true);
+            }
+          } else {
+            console.error('Error creating merchant:', await response.json());
+          }
+        } catch (error) {
+          console.error('Error creating merchant:', error);
+        }
+      } else if (existingMerchant) {
+        if (isMounted) {
+          setMerchantData(existingMerchant);
+          setIsStripeConnected(!!existingMerchant.onboarding_link);
+        }
       }
 
       setIsLoading(false);
@@ -165,41 +166,27 @@ export default function HomePage() {
               <p className="text-lg text-black mb-6 text-left">Follow these steps to get set up and start using our platform effectively.</p>
               <ol className="space-y-6">
               <li className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-semibold text-black mb-3">1. Connect with Stripe</h3>
-                  <p className="text-black mb-4">Connect a Stripe account so you can start setting rates for your data access</p>
-                  {isAdmin ? (
-                    <>
-                      {isStripeConnected ? (
-                        <Link href={merchantData?.onboarding_link || '#'}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex items-center space-x-2"
-                          >
-                            <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
-                            <span>Complete Stripe Onboarding</span>
-                          </Button>
-                        </Link>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={createMerchant}
-                          disabled={isLoading}
-                          className="flex items-center space-x-2"
-                        >
-                          <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
-                          <span>{isLoading ? 'Connecting...' : 'Connect with Stripe'}</span>
-                        </Button>
-                      )}
-                    </>
-                  ) : (
-                    <Button variant="outline" size="sm" disabled className="flex items-center space-x-2">
+                <h3 className="text-xl font-semibold text-black mb-3">1. Connect with Stripe</h3>
+                <p className="text-black mb-4">Connect a Stripe account so you can start setting rates for your data access</p>
+                {isAdmin ? (
+                  <Link href={merchantData?.onboarding_link || '#'}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center space-x-2"
+                      disabled={!merchantData?.onboarding_link}
+                    >
                       <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
-                      <span>Connect with Stripe</span>
+                      <span>{merchantData?.onboarding_link ? 'Complete Stripe Onboarding' : 'Loading...'}</span>
                     </Button>
-                  )}
-                </li>
+                  </Link>
+                ) : (
+                  <Button variant="outline" size="sm" disabled className="flex items-center space-x-2">
+                    <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
+                    <span>Connect with Stripe</span>
+                  </Button>
+                )}
+              </li>
                 <li className="bg-gray-50 p-6 rounded-lg">
                   <h3 className="text-xl font-semibold text-black mb-3">2. Connect your first tool</h3>
                   <p className="text-black mb-4">Connect a tool so you can start centralizing your semantic layer.</p>
