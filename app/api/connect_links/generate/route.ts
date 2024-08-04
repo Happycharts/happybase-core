@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth, Organization } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
 import Stripe from 'stripe';
 import { createClient } from '@/app/utils/supabase/server';
 import { clerkClient } from '@clerk/nextjs/server';
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
         first_name: data.first_name,
         last_name: data.last_name,
         email: email,
-        organization: data.name,
+        organization: data.organization,
         onboarding_link: accountLink.url,
       });
 
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ url: accountLink.url }, { status: 200 });
+    return NextResponse.json({ id: account.id, url: accountLink.url }, { status: 200 });
   } catch (error) {
     console.error('Error creating account link:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
