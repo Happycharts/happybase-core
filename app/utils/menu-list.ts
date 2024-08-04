@@ -103,19 +103,14 @@ import {
             icon: Users,
             submenus: []
           },
+          {
+            href: "/billing",
+            label: "Billing (Under Construction)",
+            active: pathname.includes("/billing"),
+            icon: Construction,
+            submenus: []
+          },
         ]
       },
-       {
-         groupLabel: "Commerce",
-         menus: [
-           {
-             href: "/billing",
-             label: "Billing (Under Construction)",
-             active: pathname.includes("/billing"),
-             icon: Construction,
-             submenus: []
-           },
-         ]
-       },
     ];
   }
