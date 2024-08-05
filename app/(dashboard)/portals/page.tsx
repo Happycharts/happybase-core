@@ -163,7 +163,6 @@ export default function Portals() {
                 <TableRow>
                   <TableHead>App</TableHead>
                   <TableHead>Creator</TableHead>
-                  <TableHead>Stripe Connect</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -177,26 +176,6 @@ export default function Portals() {
                       <span className="font-medium">{portal.app}</span>
                     </TableCell>
                     <TableCell>{portal.portal_manager}</TableCell>
-                    <TableCell>
-                    {isAdmin ? (
-                      <Link href={stripeConnectUrl}>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          disabled={isStripeConnected}
-                          className="flex items-center space-x-2"
-                        >
-                          <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
-                          <span>{isStripeConnected ? 'Connected to Stripe' : 'Connect with Stripe'}</span>
-                        </Button>
-                      </Link>
-                    ) : (
-                      <Button variant="outline" size="sm" disabled className="flex items-center space-x-2">
-                        <img src="https://cdn.iconscout.com/icon/free/png-256/free-stripe-s-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-6-pack-logos-icons-3030363.png" className="h-4 w-4" />
-                        <span>Connect with Stripe</span>
-                      </Button>
-                    )}
-                  </TableCell>
                   <TableCell>
                   <div className="flex space-x-2">
                     {/* <TooltipProvider>
